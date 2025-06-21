@@ -1,4 +1,7 @@
 <resources>
     <string name="en">İngilizce</string>
     <string name="tr">Türkçe</string>
+    <string name="home">Ana Sayfa</string>
+    <string name="history">Geçmiş</string>
+    <string name="profile">Profil</string>
 </resources>
