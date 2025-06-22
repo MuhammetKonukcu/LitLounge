@@ -4,4 +4,13 @@
     <string name="home">Home</string>
     <string name="history">History</string>
     <string name="profile">Profile</string>
+    <string name="my_friend">My Friend</string>
+    <string name="name">Name</string>
+    <string name="name_hint">Example: Steve</string>
+    <string name="daily_page_goal">Daily Page Goal</string>
+    <string name="daily_page_goal_hint">Example: 20</string>
+    <string name="monthly_book_goal">Monthly Book Goal</string>
+    <string name="monthly_book_goal_hint">Example: 4</string>
+    <string name="send_me_a_notification">Send Me A Notification</string>
+    <string name="hello_name">Hello %1$s 👋</string>
 </resources>

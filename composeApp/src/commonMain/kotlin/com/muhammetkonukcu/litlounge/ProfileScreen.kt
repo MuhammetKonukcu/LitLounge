@@ -32,6 +32,17 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.muhammetkonukcu.litlounge.theme.Blue500
 import com.muhammetkonukcu.litlounge.theme.White
+import litlounge.composeapp.generated.resources.Res
+import litlounge.composeapp.generated.resources.daily_page_goal
+import litlounge.composeapp.generated.resources.daily_page_goal_hint
+import litlounge.composeapp.generated.resources.hello_name
+import litlounge.composeapp.generated.resources.monthly_book_goal
+import litlounge.composeapp.generated.resources.monthly_book_goal_hint
+import litlounge.composeapp.generated.resources.my_friend
+import litlounge.composeapp.generated.resources.name
+import litlounge.composeapp.generated.resources.name_hint
+import litlounge.composeapp.generated.resources.send_me_a_notification
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun ProfileScreen(navController: NavController, innerPadding: PaddingValues) {
@@ -50,30 +61,33 @@ fun ProfileScreen(navController: NavController, innerPadding: PaddingValues) {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
-                text = "Hello $nameValue",
+                text = stringResource(
+                    Res.string.hello_name,
+                    if (nameValue.isNotBlank()) nameValue.trim() else stringResource(Res.string.my_friend)
+                ),
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.primary
             )
 
             LabeledOutlinedTextField(
-                label = "Name",
+                label = stringResource(Res.string.name),
                 value = nameValue,
                 onValueChange = { nameValue = it },
-                placeholder = "Name"
+                placeholder = stringResource(Res.string.name_hint)
             )
 
             LabeledOutlinedTextField(
-                label = "Daily page goal",
+                label = stringResource(Res.string.daily_page_goal),
                 value = pageValue.toString(),
                 onValueChange = { pageValue = it.toInt() },
-                placeholder = "Example 20"
+                placeholder = stringResource(Res.string.daily_page_goal_hint)
             )
 
             LabeledOutlinedTextField(
-                label = "Monthly book goal",
+                label = stringResource(Res.string.monthly_book_goal),
                 value = bookValue.toString(),
                 onValueChange = { bookValue = it.toInt() },
-                placeholder = "Example 4"
+                placeholder = stringResource(Res.string.monthly_book_goal_hint)
             )
 
             Row(
@@ -82,7 +96,7 @@ fun ProfileScreen(navController: NavController, innerPadding: PaddingValues) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Send me a notification",
+                    text = stringResource(Res.string.send_me_a_notification),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.primary
                 )

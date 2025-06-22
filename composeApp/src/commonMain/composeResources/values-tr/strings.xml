@@ -4,4 +4,13 @@
     <string name="home">Ana Sayfa</string>
     <string name="history">Geçmiş</string>
     <string name="profile">Profil</string>
+    <string name="my_friend">Arkadaşım</string>
+    <string name="name">İsim</string>
+    <string name="name_hint">Örn: Muhammet</string>
+    <string name="daily_page_goal">Günlük Sayfa Hedefi</string>
+    <string name="daily_page_goal_hint">Örn: 20</string>
+    <string name="monthly_book_goal">Aylık Kitap Hedefi</string>
+    <string name="monthly_book_goal_hint">Örn: 4</string>
+    <string name="send_me_a_notification">Bana Bildirim Gönder</string>
+    <string name="hello_name">Merhaba %1$s 👋</string>
 </resources>
