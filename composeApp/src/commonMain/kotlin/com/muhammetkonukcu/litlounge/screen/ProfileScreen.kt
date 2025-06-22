@@ -21,17 +21,15 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.muhammetkonukcu.litlounge.theme.Blue500
 import com.muhammetkonukcu.litlounge.theme.White
+import com.muhammetkonukcu.litlounge.viewmodel.ProfileViewModel
 import litlounge.composeapp.generated.resources.Res
 import litlounge.composeapp.generated.resources.daily_page_goal
 import litlounge.composeapp.generated.resources.daily_page_goal_hint
@@ -43,13 +41,15 @@ import litlounge.composeapp.generated.resources.name
 import litlounge.composeapp.generated.resources.name_hint
 import litlounge.composeapp.generated.resources.send_me_a_notification
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.annotation.KoinExperimentalAPI
 
+@OptIn(KoinExperimentalAPI::class)
 @Composable
 fun ProfileScreen(navController: NavController, innerPadding: PaddingValues) {
-    var nameValue by remember { mutableStateOf("") }
-    var pageValue by remember { mutableIntStateOf(0) }
-    var bookValue by remember { mutableIntStateOf(0) }
-    var notificationValue by remember { mutableStateOf(false) }
+    val viewModel = koinViewModel<ProfileViewModel>()
+    val uiState by viewModel.uiState.collectAsState()
+
     val scrollState = rememberScrollState()
     Scaffold(
         modifier = Modifier
@@ -63,7 +63,7 @@ fun ProfileScreen(navController: NavController, innerPadding: PaddingValues) {
             Text(
                 text = stringResource(
                     Res.string.hello_name,
-                    if (nameValue.isNotBlank()) nameValue.trim() else stringResource(Res.string.my_friend)
+                    if (uiState.name.isNotBlank()) uiState.name else stringResource(Res.string.my_friend)
                 ),
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.primary
@@ -71,22 +71,22 @@ fun ProfileScreen(navController: NavController, innerPadding: PaddingValues) {
 
             LabeledOutlinedTextField(
                 label = stringResource(Res.string.name),
-                value = nameValue,
-                onValueChange = { nameValue = it },
+                value = uiState.name,
+                onValueChange = viewModel::onNameChange,
                 placeholder = stringResource(Res.string.name_hint)
             )
 
             LabeledOutlinedTextField(
                 label = stringResource(Res.string.daily_page_goal),
-                value = pageValue.toString(),
-                onValueChange = { pageValue = it.toInt() },
+                value = uiState.dailyPageGoal.toString(),
+                onValueChange = viewModel::onDailyPageGoalChange,
                 placeholder = stringResource(Res.string.daily_page_goal_hint)
             )
 
             LabeledOutlinedTextField(
                 label = stringResource(Res.string.monthly_book_goal),
-                value = bookValue.toString(),
-                onValueChange = { bookValue = it.toInt() },
+                value = uiState.monthlyBookGoal.toString(),
+                onValueChange = viewModel::onMonthlyBookGoalChange,
                 placeholder = stringResource(Res.string.monthly_book_goal_hint)
             )
 
@@ -101,8 +101,8 @@ fun ProfileScreen(navController: NavController, innerPadding: PaddingValues) {
                     color = MaterialTheme.colorScheme.primary
                 )
                 Switch(
-                    checked = notificationValue,
-                    onCheckedChange = { notificationValue = it },
+                    checked = uiState.sendNotification,
+                    onCheckedChange = viewModel::onSendNotificationToggle,
                     colors = GetSwitchColors()
                 )
             }
