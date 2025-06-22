@@ -1,9 +1,9 @@
-package com.muhammetkonukcu.litlounge
+package com.muhammetkonukcu.litlounge.screen
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 
 @Composable
-fun HistoryScreen(navController: NavController, innerPadding: PaddingValues) {
+fun HomeScreen(navController: NavController, innerPadding: PaddingValues) {
 }

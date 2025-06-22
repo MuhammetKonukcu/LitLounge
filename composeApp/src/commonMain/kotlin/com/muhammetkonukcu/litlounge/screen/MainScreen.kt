@@ -1,4 +1,4 @@
-package com.muhammetkonukcu.litlounge
+package com.muhammetkonukcu.litlounge.screen
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
