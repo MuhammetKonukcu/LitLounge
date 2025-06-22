@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -25,6 +26,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.muhammetkonukcu.litlounge.theme.Blue500
@@ -73,21 +75,23 @@ fun ProfileScreen(navController: NavController, innerPadding: PaddingValues) {
                 label = stringResource(Res.string.name),
                 value = uiState.name,
                 onValueChange = viewModel::onNameChange,
-                placeholder = stringResource(Res.string.name_hint)
+                placeholder = stringResource(Res.string.name_hint),
             )
 
             LabeledOutlinedTextField(
                 label = stringResource(Res.string.daily_page_goal),
                 value = uiState.dailyPageGoal.toString(),
                 onValueChange = viewModel::onDailyPageGoalChange,
-                placeholder = stringResource(Res.string.daily_page_goal_hint)
+                placeholder = stringResource(Res.string.daily_page_goal_hint),
+                keyboardType = KeyboardType.Number
             )
 
             LabeledOutlinedTextField(
                 label = stringResource(Res.string.monthly_book_goal),
                 value = uiState.monthlyBookGoal.toString(),
                 onValueChange = viewModel::onMonthlyBookGoalChange,
-                placeholder = stringResource(Res.string.monthly_book_goal_hint)
+                placeholder = stringResource(Res.string.monthly_book_goal_hint),
+                keyboardType = KeyboardType.Number
             )
 
             Row(
@@ -114,6 +118,7 @@ fun ProfileScreen(navController: NavController, innerPadding: PaddingValues) {
 private fun LabeledOutlinedTextField(
     label: String,
     value: String,
+    keyboardType: KeyboardType = KeyboardType.Text,
     onValueChange: (String) -> Unit,
     placeholder: String = "",
     modifier: Modifier = Modifier
@@ -137,7 +142,10 @@ private fun LabeledOutlinedTextField(
             textStyle = MaterialTheme.typography.bodyMedium,
             singleLine = true,
             colors = GetTextFieldColors(),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = keyboardType
+            )
         )
     }
 }
