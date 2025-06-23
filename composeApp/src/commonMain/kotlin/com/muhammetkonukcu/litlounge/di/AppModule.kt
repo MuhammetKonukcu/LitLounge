@@ -14,11 +14,14 @@ private fun appModule(): Module = module {
     single<ProfileViewModel> { ProfileViewModel() }
 }
 
+expect fun databaseModule(): Module
+
 fun initKoin(config: KoinAppDeclaration? = null) =
     startKoin {
         config?.invoke(this)
 
         modules(
-            appModule()
+            appModule(),
+            databaseModule()
         )
     }
