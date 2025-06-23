@@ -4,5 +4,5 @@ import com.muhammetkonukcu.litlounge.room.entity.UserEntity
 
 interface UsersRepository {
     suspend fun insertQuery(entity: UserEntity)
-    suspend fun getUser(): UserEntity
+    suspend fun getUser(): UserEntity?
 }
