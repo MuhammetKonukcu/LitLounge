@@ -1,5 +1,9 @@
 package com.muhammetkonukcu.litlounge.di
 
+import com.muhammetkonukcu.litlounge.room.dao.UsersDao
+import com.muhammetkonukcu.litlounge.room.database.AppDatabase
+import com.muhammetkonukcu.litlounge.room.repository.UsersRepository
+import com.muhammetkonukcu.litlounge.room.repository.UsersRepositoryImpl
 import com.muhammetkonukcu.litlounge.viewmodel.HistoryViewModel
 import com.muhammetkonukcu.litlounge.viewmodel.HomeViewModel
 import com.muhammetkonukcu.litlounge.viewmodel.ProfileViewModel
@@ -11,7 +15,12 @@ import org.koin.dsl.module
 private fun appModule(): Module = module {
     single<HomeViewModel> { HomeViewModel() }
     single<HistoryViewModel> { HistoryViewModel() }
-    single<ProfileViewModel> { ProfileViewModel() }
+    single<ProfileViewModel> { ProfileViewModel(get()) }
+}
+
+private fun repoModule(): Module = module {
+    single<UsersDao> { get<AppDatabase>().getUsersDao() }
+    single<UsersRepository> { UsersRepositoryImpl(get()) }
 }
 
 expect fun databaseModule(): Module
@@ -22,6 +31,7 @@ fun initKoin(config: KoinAppDeclaration? = null) =
 
         modules(
             appModule(),
+            repoModule(),
             databaseModule()
         )
     }
