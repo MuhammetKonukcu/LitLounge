@@ -13,4 +13,21 @@
     <string name="monthly_book_goal_hint">Example: 4</string>
     <string name="send_me_a_notification">Send Me A Notification</string>
     <string name="hello_name">Hello %1$s 👋</string>
+    <string name="what_are_you_reading_right_now">What Are You Reading Right Now ?</string>
+    <string name="add_a_book">Add a Book</string>
+    <string name="i_have_read">I Have Read</string>
+    <string name="i_will_read">I Will Read</string>
+    <string name="book_name">Book Name</string>
+    <string name="book_name_hint">Example: The Alchemist</string>
+    <string name="author_name">Author Name</string>
+    <string name="author_name_hint">Example: Paulo Coelho</string>
+    <string name="the_day_i_started">The Day I Started</string>
+    <string name="the_day_i_finished">The Day I Finished</string>
+    <string name="finished">I Have Finished The Book</string>
+    <string name="how_many_pages_is_the_book">How Many Pages is The Book ?</string>
+    <string name="which_page_are_you_left_on">Which page are you left on ?</string>
+    <string name="page_info">Page %1$s</string>
+    <string name="pages_left">%1$s pages left</string>
+    <string name="start_date">Start date: %1$s</string>
+
 </resources>
