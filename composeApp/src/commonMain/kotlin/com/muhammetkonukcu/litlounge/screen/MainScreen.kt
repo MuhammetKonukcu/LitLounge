@@ -93,6 +93,12 @@ fun MainScreen() {
                                 innerPadding = innerPadding
                             )
                         }
+                        composable("AddBook") {
+                            AddBookScreen(
+                                navController = navController,
+                                innerPadding = innerPadding
+                            )
+                        }
                     }
                 }
             }
