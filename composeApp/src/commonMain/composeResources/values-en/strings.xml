@@ -29,5 +29,6 @@
     <string name="page_info">Page %1$s</string>
     <string name="pages_left">%1$s pages left</string>
     <string name="start_date">Start date: %1$s</string>
-
+    <string name="done">Done</string>
+    <string name="back">Back</string>
 </resources>

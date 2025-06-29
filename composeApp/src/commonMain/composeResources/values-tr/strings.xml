@@ -29,4 +29,6 @@
     <string name="page_info">Sayfa %1$s</string>
     <string name="pages_left">%1$s sayfa kaldı</string>
     <string name="start_date">Başlama Tarihi: %1$s</string>
+    <string name="done">Bitir</string>
+    <string name="back">Geri</string>
 </resources>
