@@ -31,4 +31,6 @@
     <string name="start_date">Başlama Tarihi: %1$s</string>
     <string name="done">Bitir</string>
     <string name="back">Geri</string>
+    <string name="clear">Temizle</string>
+    <string name="save">Kaydet</string>
 </resources>

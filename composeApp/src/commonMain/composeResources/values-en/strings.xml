@@ -31,4 +31,6 @@
     <string name="start_date">Start date: %1$s</string>
     <string name="done">Done</string>
     <string name="back">Back</string>
+    <string name="clear">Clear</string>
+    <string name="save">Save</string>
 </resources>
