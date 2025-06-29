@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.datetime.LocalDate
 
 class AddBookViewModel(private val booksRepository: BooksRepository) : ViewModel() {
     private val _uiState = MutableStateFlow(AddBookUiState())
@@ -16,17 +17,21 @@ class AddBookViewModel(private val booksRepository: BooksRepository) : ViewModel
         _uiState.update { it.copy(name = new) }
     }
 
-    fun onTotalPageChange(new: Int) {
+    fun onAuthorNameChange(new: String) {
+        _uiState.update { it.copy(authorName = new) }
+    }
+
+    fun onTotalPageChange(new: String) {
         try {
-            _uiState.update { it.copy(totalPage = new) }
+            _uiState.update { it.copy(totalPage = new.toInt()) }
         } catch (e: Exception) {
             // Handle the exception
         }
     }
 
-    fun onCurrentPageChange(new: Int) {
+    fun onCurrentPageChange(new: String) {
         try {
-            _uiState.update { it.copy(currentPage = new) }
+            _uiState.update { it.copy(currentPage = new.toInt()) }
         } catch (e: Exception) {
             // Handle the exception
         }
@@ -36,15 +41,19 @@ class AddBookViewModel(private val booksRepository: BooksRepository) : ViewModel
         _uiState.update { it.copy(imageURL = new) }
     }
 
-    fun onStartTimestampChange(new: Long) {
-        _uiState.update { it.copy(startTimestamp = new) }
+    fun onStartTimestampChange(new: LocalDate) {
+        _uiState.update { it.copy(startTimestamp = new.toString()) }
     }
 
-    fun onFinishTimestampChange(new: Long) {
-        _uiState.update { it.copy(finishTimestamp = new) }
+    fun onFinishTimestampChange(new: LocalDate) {
+        _uiState.update { it.copy(finishTimestamp = new.toString()) }
     }
 
     fun onFinishedToggle(enabled: Boolean) {
         _uiState.update { it.copy(finished = enabled) }
+    }
+
+    fun clearUiState(){
+        _uiState.value = AddBookUiState()
     }
 }

@@ -5,7 +5,8 @@ data class AddBookUiState(
     val totalPage: Int = 0,
     val currentPage: Int = 0,
     val imageURL: String = "",
-    val startTimestamp: Long = 0,
-    val finishTimestamp: Long = 0,
+    val authorName: String = "",
+    val startTimestamp: String = "",
+    val finishTimestamp: String = "",
     val finished: Boolean = false,
 )
