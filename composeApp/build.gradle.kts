@@ -66,6 +66,8 @@ kotlin {
             implementation(libs.room.runtime)
             implementation(libs.room.paging)
             implementation(libs.sqlite.bundled)
+            // Date-Time Picker
+            implementation(libs.kmp.date.time.picker)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

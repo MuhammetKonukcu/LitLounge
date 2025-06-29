@@ -22,6 +22,7 @@ pagingComposeCommon = "3.3.0-alpha02-0.4.0"
 pagingRuntimeKtx = "3.3.6"
 room = "2.7.1"
 sqlite = "2.5.2"
+kmp-datetime-picker = "1.0.5"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -36,6 +37,9 @@ androidx-activity-compose = { module = "androidx.activity:activity-compose", ver
 androidx-lifecycle-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-runtimeCompose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
 navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+
+#Date-Time Picker
+kmp-date-time-picker = { module = "network.chaintech:kmp-date-time-picker", version.ref = "kmp-datetime-picker" }
 
 #Koin
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
