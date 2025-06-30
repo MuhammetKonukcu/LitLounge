@@ -68,6 +68,9 @@ kotlin {
             implementation(libs.sqlite.bundled)
             // Date-Time Picker
             implementation(libs.kmp.date.time.picker)
+            //Camera
+            implementation(libs.camerak)
+            implementation(libs.image.saver.plugin)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

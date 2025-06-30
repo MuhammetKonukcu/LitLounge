@@ -10,7 +10,9 @@ androidx-core = "1.16.0"
 androidx-espresso = "3.6.1"
 androidx-lifecycle = "2.9.0"
 androidx-testExt = "1.2.1"
+camerak = "0.0.12"
 composeMultiplatform = "1.8.1"
+image_saver_plugin = "0.0.7"
 junit = "4.13.2"
 kotlin = "2.1.21"
 navigationCompose = "2.9.0-beta01"
@@ -40,6 +42,10 @@ navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-co
 
 #Date-Time Picker
 kmp-date-time-picker = { module = "network.chaintech:kmp-date-time-picker", version.ref = "kmp-datetime-picker" }
+
+#Camera
+camerak = { module = "io.github.kashif-mehmood-km:camerak", version.ref = "camerak" }
+image_saver_plugin = { module = "io.github.kashif-mehmood-km:image_saver_plugin", version.ref = "image_saver_plugin" }
 
 #Koin
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
