@@ -33,4 +33,13 @@
     <string name="back">Back</string>
     <string name="clear">Clear</string>
     <string name="save">Save</string>
+    <string name="add_photo">Add Photo</string>
+    <string name="book_photo">Book Photo</string>
+    <string name="cancel">Cancel</string>
+    <string name="select_from_gallery">Select From Gallery</string>
+    <string name="open_camera">Open Camera</string>
+    <string name="open_flash">Open Flash</string>
+    <string name="close_flash">Close Flash</string>
+    <string name="rotate_camera">Rotate Camera</string>
+    <string name="capture_photo">Capture Photo</string>
 </resources>

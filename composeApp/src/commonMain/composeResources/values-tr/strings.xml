@@ -33,4 +33,13 @@
     <string name="back">Geri</string>
     <string name="clear">Temizle</string>
     <string name="save">Kaydet</string>
+    <string name="add_photo">Fotoğraf Ekle</string>
+    <string name="book_photo">Kitap Fotoğrafı</string>
+    <string name="cancel">İptal</string>
+    <string name="select_from_gallery">Galeriden Seç</string>
+    <string name="open_camera">Kamerayı Aç</string>
+    <string name="open_flash">Flaşı Aç</string>
+    <string name="close_flash">Flaşı Kapat</string>
+    <string name="rotate_camera">Kamerayı Çevir</string>
+    <string name="capture_photo">Fotoğraf Çek</string>
 </resources>
