@@ -71,8 +71,7 @@ kotlin {
             implementation(libs.sqlite.bundled)
             // Date-Time Picker
             implementation(libs.kmp.date.time.picker)
-            //Camera
-            implementation(libs.camerak)
+            //Image Saver
             implementation(libs.image.saver.plugin)
             //Resources
             @OptIn(ExperimentalComposeLibrary::class)
