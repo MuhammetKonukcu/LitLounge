@@ -12,7 +12,7 @@ data class BookEntity(
     val currentPage: Int = 0,
     val imageURL: String = "",
     val authorName: String = "",
-    val startTimestamp: Long = 0,
-    val finishTimestamp: Long = 0,
     val finished: Boolean = false,
+    val startTimestamp: String = "",
+    val finishTimestamp: String = "",
 )
