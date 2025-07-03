@@ -1,13 +1,18 @@
 package com.muhammetkonukcu.litlounge.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.kashif.imagesaverplugin.ImageSaverPlugin
 import com.muhammetkonukcu.litlounge.model.AddBookUiState
 import com.muhammetkonukcu.litlounge.room.repository.BooksRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 class AddBookViewModel(private val booksRepository: BooksRepository) : ViewModel() {
     private val _uiState = MutableStateFlow(AddBookUiState())
@@ -53,7 +58,22 @@ class AddBookViewModel(private val booksRepository: BooksRepository) : ViewModel
         _uiState.update { it.copy(finished = enabled) }
     }
 
-    fun clearUiState(){
+    @OptIn(ExperimentalUuidApi::class)
+    fun saveImage(imageSaverPlugin: ImageSaverPlugin, byteArray: ByteArray?) {
+        if (byteArray == null) return
+
+        val customName = "image_${Uuid.random().toHexString()}"
+        viewModelScope.launch {
+            imageSaverPlugin.saveImage(
+                byteArray = byteArray,
+                imageName = customName
+            )?.let { path ->
+                onImageURLChange(path)
+            }
+        }
+    }
+
+    fun clearUiState() {
         _uiState.value = AddBookUiState()
     }
 }
