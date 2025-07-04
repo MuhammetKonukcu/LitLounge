@@ -18,7 +18,7 @@ import org.koin.dsl.module
 
 private fun appModule(): Module = module {
     single<HomeViewModel> { HomeViewModel(get()) }
-    single<HistoryViewModel> { HistoryViewModel() }
+    single<HistoryViewModel> { HistoryViewModel(get()) }
     single<ProfileViewModel> { ProfileViewModel(get()) }
     single<AddBookViewModel> { AddBookViewModel(get()) }
 }
