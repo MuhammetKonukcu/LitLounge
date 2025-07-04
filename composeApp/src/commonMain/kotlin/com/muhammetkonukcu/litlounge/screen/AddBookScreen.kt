@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -33,28 +34,46 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.kashif.cameraK.enums.Directory
+import com.kashif.imagesaverplugin.ImageSaverConfig
+import com.kashif.imagesaverplugin.rememberImageSaverPlugin
+import com.muhammetkonukcu.litlounge.AlertMessageDialog
 import com.muhammetkonukcu.litlounge.model.AddBookUiState
 import com.muhammetkonukcu.litlounge.theme.Blue500
 import com.muhammetkonukcu.litlounge.theme.White
+import com.muhammetkonukcu.litlounge.utils.PermissionCallback
+import com.muhammetkonukcu.litlounge.utils.PermissionStatus
+import com.muhammetkonukcu.litlounge.utils.PermissionType
+import com.muhammetkonukcu.litlounge.utils.PlatformImage
+import com.muhammetkonukcu.litlounge.utils.createPermissionsManager
+import com.muhammetkonukcu.litlounge.utils.rememberCameraManager
+import com.muhammetkonukcu.litlounge.utils.rememberGalleryManager
 import com.muhammetkonukcu.litlounge.viewmodel.AddBookViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.LocalDate
 import litlounge.composeapp.generated.resources.Res
 import litlounge.composeapp.generated.resources.add_a_book
+import litlounge.composeapp.generated.resources.add_photo
 import litlounge.composeapp.generated.resources.author_name
 import litlounge.composeapp.generated.resources.author_name_hint
 import litlounge.composeapp.generated.resources.back
@@ -64,8 +83,10 @@ import litlounge.composeapp.generated.resources.clear
 import litlounge.composeapp.generated.resources.done
 import litlounge.composeapp.generated.resources.finished
 import litlounge.composeapp.generated.resources.how_many_pages_is_the_book
+import litlounge.composeapp.generated.resources.open_camera
 import litlounge.composeapp.generated.resources.ph_arrow_left
 import litlounge.composeapp.generated.resources.save
+import litlounge.composeapp.generated.resources.select_from_gallery
 import litlounge.composeapp.generated.resources.the_day_i_finished
 import litlounge.composeapp.generated.resources.the_day_i_started
 import litlounge.composeapp.generated.resources.which_page_are_you_left_on
@@ -90,7 +111,7 @@ fun AddBookScreen(navController: NavController, innerPadding: PaddingValues) {
     Scaffold(
         modifier = Modifier.padding(innerPadding),
         topBar = { TopAppBar(navController) },
-        bottomBar = { BottomBar(viewModel) }
+        bottomBar = { BottomBar(viewModel = viewModel, navController = navController) }
     ) { contentPadding ->
         Column(
             Modifier
@@ -154,6 +175,22 @@ fun AddBookScreen(navController: NavController, innerPadding: PaddingValues) {
                     onDateChange = viewModel::onFinishTimestampChange
                 )
             }
+
+            val imageSaverPlugin = rememberImageSaverPlugin(
+                config = ImageSaverConfig(
+                    isAutoSave = false,
+                    prefix = "LitLounge",
+                    directory = Directory.PICTURES,
+                    customFolderName = "LitLounge"
+                )
+            )
+
+            OpenCameraField(
+                imageURL = uiState.imageURL,
+                onImageSelected = { imageUrl ->
+                    viewModel.saveImage(imageSaverPlugin = imageSaverPlugin, byteArray = imageUrl)
+                }
+            )
         }
     }
 }
@@ -181,7 +218,11 @@ private fun TopAppBar(navController: NavController, modifier: Modifier = Modifie
 }
 
 @Composable
-private fun BottomBar(viewModel: AddBookViewModel, modifier: Modifier = Modifier) {
+private fun BottomBar(
+    viewModel: AddBookViewModel,
+    navController: NavController,
+    modifier: Modifier = Modifier
+) {
     val uiState by viewModel.uiState.collectAsState()
     val isClearBtnEnabled = uiState != AddBookUiState()
     val isSaveBtnEnabled = uiState.name.isNotBlank() && uiState.authorName.isNotBlank() &&
@@ -192,9 +233,7 @@ private fun BottomBar(viewModel: AddBookViewModel, modifier: Modifier = Modifier
             label = stringResource(Res.string.clear),
             colors = GetClearButtonColors(),
             isEnabled = isClearBtnEnabled,
-            onClick = {
-                viewModel.clearUiState()
-            }
+            onClick = { viewModel.clearUiState() }
         )
 
         Spacer(modifier.width(16.dp))
@@ -205,14 +244,209 @@ private fun BottomBar(viewModel: AddBookViewModel, modifier: Modifier = Modifier
             colors = GetSaveButtonColors(),
             isEnabled = isSaveBtnEnabled,
             onClick = {
-
+                viewModel.saveBookToTheDatabase()
+                navController.navigateUp()
             }
         )
     }
 }
 
 @Composable
-inline fun BottomButton(
+private fun OpenCameraField(
+    imageURL: String,
+    onImageSelected: (ByteArray?) -> Unit
+) {
+    var openCameraClicked by remember { mutableStateOf(false) }
+    var openGalleryClicked by remember { mutableStateOf(false) }
+
+    if (imageURL.isBlank()) {
+        Column {
+            Text(
+                text = stringResource(Res.string.add_photo),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.primary
+            )
+            BottomButton(
+                modifier = Modifier,
+                label = stringResource(Res.string.open_camera),
+                colors = GetClearButtonColors(),
+                isEnabled = true,
+                onClick = { openCameraClicked = true }
+            )
+
+            BottomButton(
+                modifier = Modifier,
+                label = stringResource(Res.string.select_from_gallery),
+                colors = GetClearButtonColors(),
+                isEnabled = true,
+                onClick = { openGalleryClicked = true }
+            )
+        }
+    } else {
+        PlatformImage(
+            imageURL = imageURL,
+            modifier = Modifier.fillMaxWidth().aspectRatio(1f).clip(RoundedCornerShape(12.dp)),
+            contentScale = ContentScale.Crop
+        )
+    }
+
+    if (openCameraClicked) {
+        OpenCamera { byteArray ->
+            onImageSelected.invoke(byteArray)
+            openCameraClicked = false
+        }
+    }
+
+    if (openGalleryClicked) {
+        OpenGallery { byteArray ->
+            onImageSelected.invoke(byteArray)
+            openGalleryClicked = false
+        }
+    }
+}
+
+@Composable
+private fun OpenCamera(imageCapture: (ByteArray?) -> Unit) {
+    val coroutineScope = rememberCoroutineScope()
+    var shouldLaunch by remember { mutableStateOf(false) }
+    val cameraManager = rememberCameraManager { bitmap ->
+        coroutineScope.launch {
+            imageCapture(bitmap?.toByteArray())
+        }
+    }
+    var launchSetting by remember { mutableStateOf(value = false) }
+    var permissionRationalDialog by remember { mutableStateOf(value = false) }
+    val permissionsManager = createPermissionsManager(object : PermissionCallback {
+        override fun onPermissionStatus(
+            permissionType: PermissionType,
+            status: PermissionStatus
+        ) {
+            when (status) {
+                PermissionStatus.GRANTED -> {
+                    shouldLaunch = true
+                }
+
+                else -> {
+                    permissionRationalDialog = true
+                }
+            }
+        }
+    })
+
+    val hasPermission = permissionsManager.isPermissionGranted(PermissionType.CAMERA)
+
+    LaunchedEffect(hasPermission) {
+        if (hasPermission) {
+            shouldLaunch = true
+        }
+    }
+
+    LaunchedEffect(shouldLaunch) {
+        if (shouldLaunch) {
+            cameraManager.launch()
+            shouldLaunch = false
+        }
+    }
+
+    if (!hasPermission) {
+        permissionsManager.askPermission(PermissionType.CAMERA)
+    }
+
+    if (launchSetting) {
+        permissionsManager.launchSettings()
+        launchSetting = false
+    }
+    if (permissionRationalDialog) {
+        AlertMessageDialog(
+            title = "Permission Required",
+            message = "To set your profile picture, please grant this permission. You can manage permissions in your device settings.",
+            positiveButtonText = "Settings",
+            negativeButtonText = "Cancel",
+            onPositiveClick = {
+                permissionRationalDialog = false
+                launchSetting = true
+
+            },
+            onNegativeClick = {
+                permissionRationalDialog = false
+            })
+
+    }
+}
+
+@Composable
+private fun OpenGallery(imageSelect: (ByteArray?) -> Unit) {
+    val coroutineScope = rememberCoroutineScope()
+    var shouldLaunch by remember { mutableStateOf(false) }
+    val cameraManager = rememberGalleryManager { bitmap ->
+        coroutineScope.launch {
+            val bitmap = withContext(Dispatchers.Default) {
+                bitmap?.toByteArray()
+            }
+            imageSelect.invoke(bitmap)
+        }
+    }
+    var launchSetting by remember { mutableStateOf(value = false) }
+    var permissionRationalDialog by remember { mutableStateOf(value = false) }
+    val permissionsManager = createPermissionsManager(object : PermissionCallback {
+        override fun onPermissionStatus(
+            permissionType: PermissionType,
+            status: PermissionStatus
+        ) {
+            when (status) {
+                PermissionStatus.GRANTED -> {
+                    shouldLaunch = true
+                }
+
+                else -> {
+                    permissionRationalDialog = true
+                }
+            }
+        }
+    })
+
+    val hasPermission = permissionsManager.isPermissionGranted(PermissionType.GALLERY)
+
+    LaunchedEffect(hasPermission) {
+        if (hasPermission) {
+            shouldLaunch = true
+        }
+    }
+
+    LaunchedEffect(shouldLaunch) {
+        if (shouldLaunch) {
+            cameraManager.launch()
+            shouldLaunch = false
+        }
+    }
+
+    if (!hasPermission) {
+        permissionsManager.askPermission(PermissionType.GALLERY)
+    }
+
+    if (launchSetting) {
+        permissionsManager.launchSettings()
+        launchSetting = false
+    }
+    if (permissionRationalDialog) {
+        AlertMessageDialog(
+            title = "Permission Required",
+            message = "To set your profile picture, please grant this permission. You can manage permissions in your device settings.",
+            positiveButtonText = "Settings",
+            negativeButtonText = "Cancel",
+            onPositiveClick = {
+                permissionRationalDialog = false
+                launchSetting = true
+
+            },
+            onNegativeClick = {
+                permissionRationalDialog = false
+            })
+    }
+}
+
+@Composable
+private inline fun BottomButton(
     modifier: Modifier,
     label: String,
     colors: ButtonColors,
@@ -235,7 +469,7 @@ inline fun BottomButton(
 }
 
 @Composable
-fun BookTextField(
+private fun BookTextField(
     labelRes: StringResource,
     value: String,
     onValueChange: (String) -> Unit,
@@ -252,7 +486,7 @@ fun BookTextField(
 }
 
 @Composable
-fun DateField(
+private fun DateField(
     labelRes: StringResource,
     dateString: String,
     startDateString: String = "",
@@ -429,7 +663,7 @@ private fun GetCheckboxColors(): CheckboxColors {
 }
 
 @Composable
-fun GetClearButtonColors(): ButtonColors {
+private fun GetClearButtonColors(): ButtonColors {
     val colors = ButtonDefaults.buttonColors().copy(
         containerColor = MaterialTheme.colorScheme.secondary,
         contentColor = MaterialTheme.colorScheme.background,
@@ -440,7 +674,7 @@ fun GetClearButtonColors(): ButtonColors {
 }
 
 @Composable
-fun GetSaveButtonColors(): ButtonColors {
+private fun GetSaveButtonColors(): ButtonColors {
     val colors = ButtonDefaults.buttonColors().copy(
         containerColor = Blue500,
         contentColor = White,
