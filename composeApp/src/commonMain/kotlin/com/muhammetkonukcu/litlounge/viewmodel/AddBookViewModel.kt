@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kashif.imagesaverplugin.ImageSaverPlugin
 import com.muhammetkonukcu.litlounge.model.AddBookUiState
+import com.muhammetkonukcu.litlounge.room.entity.BookEntity
 import com.muhammetkonukcu.litlounge.room.repository.BooksRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -70,6 +71,24 @@ class AddBookViewModel(private val booksRepository: BooksRepository) : ViewModel
             )?.let { path ->
                 onImageURLChange(path)
             }
+        }
+    }
+
+    fun saveBookToTheDatabase() {
+        viewModelScope.launch {
+            booksRepository.insertBook(
+                BookEntity(
+                    name = uiState.value.name,
+                    authorName = uiState.value.authorName,
+                    totalPage = uiState.value.totalPage,
+                    currentPage = uiState.value.currentPage,
+                    imageURL = uiState.value.imageURL,
+                    startTimestamp = uiState.value.startTimestamp,
+                    finishTimestamp = uiState.value.finishTimestamp,
+                    finished = uiState.value.finished
+                )
+            )
+            clearUiState()
         }
     }
 
