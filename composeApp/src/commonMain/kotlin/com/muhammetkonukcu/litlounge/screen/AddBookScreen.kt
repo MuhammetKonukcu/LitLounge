@@ -298,15 +298,15 @@ private fun OpenCameraField(
     if (openCameraClicked) {
         OpenCamera { byteArray ->
             onImageSelected.invoke(byteArray)
-            openCameraClicked = false
         }
+        openCameraClicked = false
     }
 
     if (openGalleryClicked) {
         OpenGallery { byteArray ->
             onImageSelected.invoke(byteArray)
-            openGalleryClicked = false
         }
+        openGalleryClicked = false
     }
 }
 
