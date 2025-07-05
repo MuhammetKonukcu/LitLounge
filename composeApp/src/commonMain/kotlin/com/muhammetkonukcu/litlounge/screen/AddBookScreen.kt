@@ -79,14 +79,19 @@ import litlounge.composeapp.generated.resources.author_name_hint
 import litlounge.composeapp.generated.resources.back
 import litlounge.composeapp.generated.resources.book_name
 import litlounge.composeapp.generated.resources.book_name_hint
+import litlounge.composeapp.generated.resources.camera_permission_message
+import litlounge.composeapp.generated.resources.cancel
 import litlounge.composeapp.generated.resources.clear
 import litlounge.composeapp.generated.resources.done
 import litlounge.composeapp.generated.resources.finished
+import litlounge.composeapp.generated.resources.gallery_permission_message
 import litlounge.composeapp.generated.resources.how_many_pages_is_the_book
 import litlounge.composeapp.generated.resources.open_camera
+import litlounge.composeapp.generated.resources.permission_required_title
 import litlounge.composeapp.generated.resources.ph_arrow_left
 import litlounge.composeapp.generated.resources.save
 import litlounge.composeapp.generated.resources.select_from_gallery
+import litlounge.composeapp.generated.resources.settings
 import litlounge.composeapp.generated.resources.the_day_i_finished
 import litlounge.composeapp.generated.resources.the_day_i_started
 import litlounge.composeapp.generated.resources.which_page_are_you_left_on
@@ -358,10 +363,10 @@ private fun OpenCamera(imageCapture: (ByteArray?) -> Unit) {
     }
     if (permissionRationalDialog) {
         AlertMessageDialog(
-            title = "Permission Required",
-            message = "To set your profile picture, please grant this permission. You can manage permissions in your device settings.",
-            positiveButtonText = "Settings",
-            negativeButtonText = "Cancel",
+            title = stringResource(Res.string.permission_required_title),
+            message = stringResource(Res.string.camera_permission_message),
+            positiveButtonText = stringResource(Res.string.settings),
+            negativeButtonText = stringResource(Res.string.cancel),
             onPositiveClick = {
                 permissionRationalDialog = false
                 launchSetting = true
@@ -369,8 +374,8 @@ private fun OpenCamera(imageCapture: (ByteArray?) -> Unit) {
             },
             onNegativeClick = {
                 permissionRationalDialog = false
-            })
-
+            }
+        )
     }
 }
 
@@ -430,10 +435,10 @@ private fun OpenGallery(imageSelect: (ByteArray?) -> Unit) {
     }
     if (permissionRationalDialog) {
         AlertMessageDialog(
-            title = "Permission Required",
-            message = "To set your profile picture, please grant this permission. You can manage permissions in your device settings.",
-            positiveButtonText = "Settings",
-            negativeButtonText = "Cancel",
+            title = stringResource(Res.string.permission_required_title),
+            message = stringResource(Res.string.gallery_permission_message),
+            positiveButtonText = stringResource(Res.string.settings),
+            negativeButtonText = stringResource(Res.string.cancel),
             onPositiveClick = {
                 permissionRationalDialog = false
                 launchSetting = true
@@ -441,7 +446,8 @@ private fun OpenGallery(imageSelect: (ByteArray?) -> Unit) {
             },
             onNegativeClick = {
                 permissionRationalDialog = false
-            })
+            }
+        )
     }
 }
 
