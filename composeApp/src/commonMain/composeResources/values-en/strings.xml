@@ -42,4 +42,8 @@
     <string name="close_flash">Close Flash</string>
     <string name="rotate_camera">Rotate Camera</string>
     <string name="capture_photo">Capture Photo</string>
+    <string name="permission_required_title">Permission Required</string>
+    <string name="gallery_permission_message">Please grant permission to access the gallery. You can manage permissions in your device settings.</string>
+    <string name="camera_permission_message">Please grant access to the camera. You can manage permissions in your device settings.</string>
+    <string name="settings">Settings</string>
 </resources>
