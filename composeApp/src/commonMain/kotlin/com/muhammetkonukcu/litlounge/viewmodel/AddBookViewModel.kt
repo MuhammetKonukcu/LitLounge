@@ -76,6 +76,8 @@ class AddBookViewModel(private val booksRepository: BooksRepository) : ViewModel
 
     fun saveBookToTheDatabase() {
         viewModelScope.launch {
+            val finishedTimestampStr =
+                if (uiState.value.finished) uiState.value.finishTimestamp else ""
             booksRepository.insertBook(
                 BookEntity(
                     name = uiState.value.name,
@@ -84,7 +86,7 @@ class AddBookViewModel(private val booksRepository: BooksRepository) : ViewModel
                     currentPage = uiState.value.currentPage,
                     imageURL = uiState.value.imageURL,
                     startTimestamp = uiState.value.startTimestamp,
-                    finishTimestamp = uiState.value.finishTimestamp,
+                    finishTimestamp = finishedTimestampStr,
                     finished = uiState.value.finished
                 )
             )
