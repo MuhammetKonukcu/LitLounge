@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -35,6 +36,7 @@ import com.muhammetkonukcu.litlounge.utils.PlatformImage
 import com.muhammetkonukcu.litlounge.viewmodel.HomeViewModel
 import litlounge.composeapp.generated.resources.Res
 import litlounge.composeapp.generated.resources.add_a_book
+import litlounge.composeapp.generated.resources.currently_reading
 import litlounge.composeapp.generated.resources.hello_name
 import litlounge.composeapp.generated.resources.my_friend
 import litlounge.composeapp.generated.resources.what_are_you_reading_right_now
@@ -53,9 +55,9 @@ fun HomeScreen(navController: NavController, innerPadding: PaddingValues) {
         viewModel.getUserData()
     }
 
-    Scaffold(modifier = Modifier.padding(innerPadding)) {
+    Scaffold(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
         Column(
-            modifier = Modifier.padding(horizontal = 12.dp),
+            modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
@@ -69,6 +71,14 @@ fun HomeScreen(navController: NavController, innerPadding: PaddingValues) {
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.primary
             )
+
+            if (readingBooksPagingData.itemSnapshotList.isNotEmpty()) {
+                Text(
+                    text = stringResource(Res.string.currently_reading),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
 
             ReadingBooksLazyColumn(pagingItems = readingBooksPagingData)
 
