@@ -46,4 +46,5 @@
     <string name="gallery_permission_message">Galeriye erişim izni verin. İzinleri cihaz ayarlarından yönetebilirsiniz.</string>
     <string name="camera_permission_message">Kameraya erişim izni verin. İzinleri cihaz ayarlarından yönetebilirsiniz.</string>
     <string name="settings">Ayarlar</string>
+    <string name="currently_reading">Devam Ettiğim Kitaplar</string>
 </resources>
