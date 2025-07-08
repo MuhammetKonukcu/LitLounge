@@ -1,10 +1,13 @@
 package com.muhammetkonukcu.litlounge.di
 
 import com.muhammetkonukcu.litlounge.room.dao.BooksDao
+import com.muhammetkonukcu.litlounge.room.dao.PageTrackDao
 import com.muhammetkonukcu.litlounge.room.dao.UsersDao
 import com.muhammetkonukcu.litlounge.room.database.AppDatabase
 import com.muhammetkonukcu.litlounge.room.repository.BooksRepository
 import com.muhammetkonukcu.litlounge.room.repository.BooksRepositoryImpl
+import com.muhammetkonukcu.litlounge.room.repository.PageTrackRepository
+import com.muhammetkonukcu.litlounge.room.repository.PageTrackRepositoryImpl
 import com.muhammetkonukcu.litlounge.room.repository.UsersRepository
 import com.muhammetkonukcu.litlounge.room.repository.UsersRepositoryImpl
 import com.muhammetkonukcu.litlounge.viewmodel.AddBookViewModel
@@ -29,6 +32,9 @@ private fun repoModule(): Module = module {
 
     single<BooksDao> { get<AppDatabase>().getBooksDao() }
     single<BooksRepository> { BooksRepositoryImpl(get()) }
+
+    single<PageTrackDao> { get<AppDatabase>().getPageTrackDao() }
+    single<PageTrackRepository> { PageTrackRepositoryImpl(get()) }
 }
 
 expect fun databaseModule(): Module
