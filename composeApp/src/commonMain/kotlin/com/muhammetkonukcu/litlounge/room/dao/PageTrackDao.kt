@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
+import app.cash.paging.PagingSource
 import com.muhammetkonukcu.litlounge.room.entity.PageEntity
 
 @Dao
@@ -29,4 +30,7 @@ interface PageTrackDao {
 
     @Query("SELECT * FROM PageEntity WHERE dateStr = :dateStr LIMIT 1")
     suspend fun getPageByDate(dateStr: String): PageEntity?
+
+    @Query("SELECT * FROM PageEntity ORDER BY id DESC")
+    fun getFullPageTrack(): PagingSource<Int, PageEntity>
 }
