@@ -11,9 +11,11 @@ import com.muhammetkonukcu.litlounge.room.repository.PageTrackRepositoryImpl
 import com.muhammetkonukcu.litlounge.room.repository.UsersRepository
 import com.muhammetkonukcu.litlounge.room.repository.UsersRepositoryImpl
 import com.muhammetkonukcu.litlounge.viewmodel.AddBookViewModel
+import com.muhammetkonukcu.litlounge.viewmodel.BookDetailViewModel
 import com.muhammetkonukcu.litlounge.viewmodel.HistoryViewModel
 import com.muhammetkonukcu.litlounge.viewmodel.HomeViewModel
 import com.muhammetkonukcu.litlounge.viewmodel.ProfileViewModel
+import org.koin.compose.viewmodel.dsl.viewModel
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
 import org.koin.dsl.KoinAppDeclaration
@@ -24,6 +26,7 @@ private fun appModule(): Module = module {
     single<HistoryViewModel> { HistoryViewModel(get()) }
     single<ProfileViewModel> { ProfileViewModel(get()) }
     single<AddBookViewModel> { AddBookViewModel(get()) }
+    viewModel { BookDetailViewModel(get(), get()) }
 }
 
 private fun repoModule(): Module = module {
