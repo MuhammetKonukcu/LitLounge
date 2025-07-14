@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface BooksRepository {
     suspend fun insertBook(entity: BookEntity)
+    suspend fun getBookById(id: Int): Flow<BookEntity?>
     fun getBooks(pageSize: Int = 10): Flow<PagingData<BookEntity>>
     fun getCurrentlyReadBooks(pageSize: Int = 5): Flow<PagingData<BookEntity>>
 }

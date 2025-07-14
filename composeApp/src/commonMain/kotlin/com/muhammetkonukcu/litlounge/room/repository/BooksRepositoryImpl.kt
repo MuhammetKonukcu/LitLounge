@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.Flow
 class BooksRepositoryImpl(private val booksDao: BooksDao) : BooksRepository {
     override suspend fun insertBook(entity: BookEntity) = booksDao.insertBook(entity)
 
+    override suspend fun getBookById(id: Int) = booksDao.getBookById(id)
+
     override fun getBooks(pageSize: Int): Flow<PagingData<BookEntity>> {
         return Pager(
             config = PagingConfig(
