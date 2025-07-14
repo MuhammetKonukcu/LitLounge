@@ -22,10 +22,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.muhammetkonukcu.litlounge.lang.AppLang
 import com.muhammetkonukcu.litlounge.lang.rememberAppLocale
 import com.muhammetkonukcu.litlounge.model.BottomNavModel
@@ -98,6 +100,19 @@ fun MainScreen() {
                                 navController = navController,
                                 innerPadding = innerPadding
                             )
+                        }
+                        composable(
+                            route = "BookDetail/{id}",
+                            arguments = listOf(
+                                navArgument(name = "id") { type = NavType.IntType }
+                            )) { backStack ->
+                            backStack.arguments?.getInt("id")?.let {
+                                BookDetailScreen(
+                                    it,
+                                    navController = navController,
+                                    innerPadding = innerPadding
+                                )
+                            }
                         }
                     }
                 }
