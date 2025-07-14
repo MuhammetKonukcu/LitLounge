@@ -80,7 +80,10 @@ fun HomeScreen(navController: NavController, innerPadding: PaddingValues) {
                 )
             }
 
-            ReadingBooksLazyColumn(pagingItems = readingBooksPagingData)
+            ReadingBooksLazyColumn(
+                pagingItems = readingBooksPagingData,
+                navController = navController
+            )
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -116,7 +119,10 @@ fun HomeScreen(navController: NavController, innerPadding: PaddingValues) {
 }
 
 @Composable
-private fun ReadingBooksLazyColumn(pagingItems: LazyPagingItems<BookEntity>) {
+private fun ReadingBooksLazyColumn(
+    pagingItems: LazyPagingItems<BookEntity>,
+    navController: NavController
+) {
     LazyColumn(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -126,7 +132,9 @@ private fun ReadingBooksLazyColumn(pagingItems: LazyPagingItems<BookEntity>) {
             key = { index -> pagingItems[index]?.id ?: 0 }) { index ->
             val historyItem = pagingItems[index]
             historyItem?.let {
-                ReadingBookItem(entity = it, onClick = {})
+                ReadingBookItem(
+                    entity = it,
+                    onClick = { id -> navController.navigate("BookDetail/$id") })
             }
         }
     }
