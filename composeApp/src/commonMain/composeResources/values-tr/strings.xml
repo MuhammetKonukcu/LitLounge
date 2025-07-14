@@ -47,4 +47,5 @@
     <string name="camera_permission_message">Kameraya erişim izni verin. İzinleri cihaz ayarlarından yönetebilirsiniz.</string>
     <string name="settings">Ayarlar</string>
     <string name="currently_reading">Devam Ettiğim Kitaplar</string>
+    <string name="how_many_pages_did_you_read_today">Bugün kaç sayfa okudun ?</string>
 </resources>
