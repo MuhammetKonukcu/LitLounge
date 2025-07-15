@@ -33,6 +33,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -68,7 +69,7 @@ import org.koin.core.annotation.KoinExperimentalAPI
 @Composable
 fun HomeScreen(navController: NavController, innerPadding: PaddingValues) {
     val viewModel = koinViewModel<HomeViewModel>()
-    val userData = viewModel.userData.collectAsState()
+    val userData by viewModel.userData.collectAsState()
     val readingBooksPagingData = viewModel.readingBooksPagingDataFlow.collectAsLazyPagingItems()
     val pageTrackPagingData = viewModel.pageTrackPagingDataFlow.collectAsLazyPagingItems()
 
@@ -85,7 +86,7 @@ fun HomeScreen(navController: NavController, innerPadding: PaddingValues) {
                 modifier = Modifier.padding(vertical = 8.dp),
                 text = stringResource(
                     Res.string.hello_name,
-                    userData.value?.name ?: run {
+                    userData?.name ?: run {
                         stringResource(Res.string.my_friend)
                     }
                 ),
@@ -138,7 +139,7 @@ fun HomeScreen(navController: NavController, innerPadding: PaddingValues) {
 
             PagesBarChartWithLazyRow(
                 data = pageTrackPagingData.itemSnapshotList.items,
-                dailyGoal = 40
+                dailyGoal = userData?.dailyPageGoal ?: 0
             )
         }
     }
@@ -359,7 +360,7 @@ private fun PagesBarChartWithLazyRow(
 
 @Composable
 private fun DashedDivider(
-    color: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+    color: Color = MaterialTheme.colorScheme.tertiary,
     thickness: Dp = 1.dp,
     dashLength: Dp = 4.dp,
     gapLength: Dp = 4.dp,
