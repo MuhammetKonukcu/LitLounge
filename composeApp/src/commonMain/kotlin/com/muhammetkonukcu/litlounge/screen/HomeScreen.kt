@@ -3,17 +3,24 @@ package com.muhammetkonukcu.litlounge.screen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -24,16 +31,21 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import app.cash.paging.compose.LazyPagingItems
 import app.cash.paging.compose.collectAsLazyPagingItems
 import com.muhammetkonukcu.litlounge.room.entity.BookEntity
+import com.muhammetkonukcu.litlounge.room.entity.PageEntity
 import com.muhammetkonukcu.litlounge.theme.Blue500
 import com.muhammetkonukcu.litlounge.theme.White
 import com.muhammetkonukcu.litlounge.utils.PlatformImage
 import com.muhammetkonukcu.litlounge.viewmodel.HomeViewModel
+import kotlinx.datetime.LocalDate
 import litlounge.composeapp.generated.resources.Res
 import litlounge.composeapp.generated.resources.add_a_book
 import litlounge.composeapp.generated.resources.currently_reading
@@ -50,6 +62,7 @@ fun HomeScreen(navController: NavController, innerPadding: PaddingValues) {
     val viewModel = koinViewModel<HomeViewModel>()
     val userData = viewModel.userData.collectAsState()
     val readingBooksPagingData = viewModel.readingBooksPagingDataFlow.collectAsLazyPagingItems()
+    val pageTrackPagingData = viewModel.pageTrackPagingDataFlow.collectAsLazyPagingItems()
 
     LaunchedEffect(Unit) {
         viewModel.getUserData()
@@ -114,6 +127,11 @@ fun HomeScreen(navController: NavController, innerPadding: PaddingValues) {
                     )
                 }
             }
+
+            PagesBarChartWithLazyRow(
+                data = pageTrackPagingData.itemSnapshotList.items,
+                dailyGoal = 40
+            )
         }
     }
 }
@@ -190,6 +208,111 @@ private fun ReadingBookItem(entity: BookEntity, onClick: (Int) -> Unit) {
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.primary
             )
+        }
+    }
+}
+
+@Composable
+fun PagesBarChartWithLazyRow(
+    data: List<PageEntity>,
+    dailyGoal: Int,
+    modifier: Modifier = Modifier,
+    chartHeight: Dp = 200.dp,
+    gridLines: Int = 5
+) {
+    if (data.isEmpty()) return
+
+    val lastDate = LocalDate.parse(data.maxByOrNull { it.dateStr }!!.dateStr)
+    val monthYear = lastDate.month.name.lowercase().replaceFirstChar { it.titlecase() } +
+            " ${lastDate.year}"
+
+    val totalPages = data.sumOf { it.pageCount }
+
+    val maxValue = (data.maxOf { it.pageCount }).coerceAtLeast(dailyGoal)
+
+    Column(
+        modifier = modifier
+            .padding(16.dp)
+    ) {
+        Text(
+            text = "Pages in $monthYear",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Center
+        )
+        Text(
+            text = "$totalPages pages",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.secondary,
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Center
+        )
+        Spacer(Modifier.height(8.dp))
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(chartHeight)
+        ) {
+            Column(Modifier.fillMaxSize()) {
+                repeat(gridLines) { idx ->
+                    val value = maxValue * (gridLines - idx) / gridLines
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = value.toString(),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.secondary,
+                            modifier = Modifier.width(32.dp)
+                        )
+                        Divider(
+                            color = MaterialTheme.colorScheme.tertiary,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    Spacer(Modifier.weight(1f))
+                }
+            }
+
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(start = 32.dp),
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(horizontal = 4.dp)
+            ) {
+                items(data) { dp ->
+                    val fraction = dp.pageCount.toFloat() / maxValue
+                    val heightPx = chartHeight * fraction
+
+                    val color = if (dp.pageCount >= dailyGoal) Color(0xFF4CAF50)
+                    else Color(0xFFF44336)
+
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .width(12.dp)
+                                .height(heightPx)
+                                .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+                                .background(color)
+                        )
+
+                        val day = LocalDate.parse(dp.dateStr).dayOfMonth.toString()
+                        Text(
+                            text = day,
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.secondary,
+                        )
+                    }
+                }
+            }
         }
     }
 }
