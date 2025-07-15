@@ -1,5 +1,6 @@
 package com.muhammetkonukcu.litlounge.screen
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -35,7 +36,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -284,10 +287,7 @@ private fun PagesBarChartWithLazyRow(
                             color = MaterialTheme.colorScheme.secondary,
                             modifier = Modifier.width(32.dp)
                         )
-                        Divider(
-                            color = MaterialTheme.colorScheme.tertiary,
-                            modifier = Modifier.weight(1f)
-                        )
+                        DashedDivider()
                     }
                     Spacer(Modifier.weight(1f))
                 }
@@ -354,6 +354,29 @@ private fun PagesBarChartWithLazyRow(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun DashedDivider(
+    color: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+    thickness: Dp = 1.dp,
+    dashLength: Dp = 4.dp,
+    gapLength: Dp = 4.dp,
+    modifier: Modifier = Modifier.fillMaxWidth()
+) {
+    val stroke = with(LocalDensity.current) { thickness.toPx() }
+    val dash = with(LocalDensity.current) { dashLength.toPx() }
+    val gap = with(LocalDensity.current) { gapLength.toPx() }
+
+    Canvas(modifier = modifier.height(thickness)) {
+        drawLine(
+            color = color,
+            start = Offset(0f, 0f),
+            end = Offset(size.width, 0f),
+            strokeWidth = stroke,
+            pathEffect = PathEffect.dashPathEffect(floatArrayOf(dash, gap), 0f)
+        )
     }
 }
 
