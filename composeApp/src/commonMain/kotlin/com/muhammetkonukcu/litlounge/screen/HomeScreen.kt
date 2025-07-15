@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -14,9 +15,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
@@ -32,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -213,22 +218,29 @@ private fun ReadingBookItem(entity: BookEntity, onClick: (Int) -> Unit) {
 }
 
 @Composable
-fun PagesBarChartWithLazyRow(
+private fun PagesBarChartWithLazyRow(
     data: List<PageEntity>,
     dailyGoal: Int,
     modifier: Modifier = Modifier,
     chartHeight: Dp = 200.dp,
+    labelHeight: Dp = 20.dp,
+    spacerHeight: Dp = 4.dp,
     gridLines: Int = 5
 ) {
     if (data.isEmpty()) return
 
-    val lastDate = LocalDate.parse(data.maxByOrNull { it.dateStr }!!.dateStr)
-    val monthYear = lastDate.month.name.lowercase().replaceFirstChar { it.titlecase() } +
-            " ${lastDate.year}"
+    val listState = rememberLazyListState()
 
-    val totalPages = data.sumOf { it.pageCount }
+    val lastVisibleItemIndex = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
 
-    val maxValue = (data.maxOf { it.pageCount }).coerceAtLeast(dailyGoal)
+    val lastVisibleDate = LocalDate.parse(data[lastVisibleItemIndex].dateStr)
+    val monthYear = lastVisibleDate.month.name.lowercase().replaceFirstChar { it.titlecase() } +
+            " ${lastVisibleDate.year}"
+
+    val totalPages = data.filter { pageEntity ->
+        val pageDate = LocalDate.parse(pageEntity.dateStr)
+        pageDate.month == lastVisibleDate.month && pageDate.year == lastVisibleDate.year
+    }.sumOf { it.pageCount }
 
     Column(
         modifier = modifier
@@ -255,12 +267,16 @@ fun PagesBarChartWithLazyRow(
                 .fillMaxWidth()
                 .height(chartHeight)
         ) {
-            Column(Modifier.fillMaxSize()) {
+
+            val cellHeight = chartHeight + labelHeight + spacerHeight
+            val maxValue = data.maxOf { it.pageCount }.coerceAtLeast(dailyGoal)
+
+            Column(Modifier.fillMaxSize().padding(bottom = labelHeight + spacerHeight)) {
                 repeat(gridLines) { idx ->
                     val value = maxValue * (gridLines - idx) / gridLines
                     Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.Top
                     ) {
                         Text(
                             text = value.toString(),
@@ -278,38 +294,62 @@ fun PagesBarChartWithLazyRow(
             }
 
             LazyRow(
+                state = listState,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(start = 32.dp),
-                verticalAlignment = Alignment.Bottom,
+                reverseLayout = true,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(horizontal = 4.dp)
+                contentPadding = PaddingValues(horizontal = 4.dp),
+                verticalAlignment = Alignment.Bottom
             ) {
                 items(data) { dp ->
-                    val fraction = dp.pageCount.toFloat() / maxValue
-                    val heightPx = chartHeight * fraction
+                    val dayText = LocalDate.parse(dp.dateStr).dayOfMonth.toString()
 
-                    val color = if (dp.pageCount >= dailyGoal) Color(0xFF4CAF50)
-                    else Color(0xFFF44336)
-
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(4.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                    BoxWithConstraints(
+                        modifier = Modifier
+                            .wrapContentWidth()
+                            .widthIn(min = 24.dp)
+                            .height(cellHeight),
+                        contentAlignment = Alignment.BottomCenter
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .width(12.dp)
-                                .height(heightPx)
-                                .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
-                                .background(color)
-                        )
+                        val totalPx = constraints.maxHeight.toFloat()
+                        val density = LocalDensity.current
+                        val labelPx = with(density) { labelHeight.toPx() }
+                        val spacerPx = with(density) { spacerHeight.toPx() }
+                        val chartAreaHeightPx = (totalPx - labelPx - spacerPx).coerceAtLeast(0f)
 
-                        val day = LocalDate.parse(dp.dateStr).dayOfMonth.toString()
-                        Text(
-                            text = day,
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.secondary,
-                        )
+                        val fraction = dp.pageCount / maxValue.toFloat()
+                        val barHeightPx = chartAreaHeightPx * fraction
+
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.Bottom,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .height(with(density) { barHeightPx.toDp() })
+                                    .width(24.dp)
+                                    .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+                                    .background(
+                                        if (dp.pageCount >= dailyGoal) Color(0xFF4CAF50)
+                                        else Color(0xFFF44336)
+                                    )
+                            )
+                            Spacer(Modifier.height(spacerHeight))
+                            Text(
+                                text = dayText,
+                                style = MaterialTheme.typography.labelMedium,
+                                maxLines = 1,
+                                color = MaterialTheme.colorScheme.secondary,
+                                modifier = Modifier
+                                    .height(labelHeight)
+                                    .fillMaxWidth(),
+                                textAlign = TextAlign.Center,
+                                overflow = TextOverflow.Visible
+                            )
+                        }
                     }
                 }
             }
