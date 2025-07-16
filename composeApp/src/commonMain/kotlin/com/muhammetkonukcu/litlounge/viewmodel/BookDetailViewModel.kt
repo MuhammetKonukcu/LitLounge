@@ -43,11 +43,29 @@ class BookDetailViewModel(
 
     fun saveBookToTheDatabase(trackEntity: PageEntity, bookEntity: BookEntity) {
         viewModelScope.launch {
-            booksRepository.insertBook(
-                entity = bookEntity.copy(currentPage = bookEntity.currentPage + trackEntity.pageCount)
-            )
-            trackRepository.insertOrUpdatePage(entity = trackEntity)
-            clearUiState()
+            val totalPages = bookDataFlow.value.totalPage
+            val currentPage = bookDataFlow.value.currentPage
+
+            if (currentPage + trackEntity.pageCount >= totalPages) {
+                val remainingPages = totalPages - currentPage
+                val adjustedTrackEntity = trackEntity.copy(pageCount = remainingPages)
+
+                booksRepository.insertBook(
+                    entity = bookEntity.copy(
+                        currentPage = totalPages,
+                        finished = true,
+                        finishTimestamp = trackEntity.dateStr
+                    )
+                )
+                trackRepository.insertOrUpdatePage(entity = adjustedTrackEntity)
+                clearUiState()
+            } else {
+                booksRepository.insertBook(
+                    entity = bookEntity.copy(currentPage = bookEntity.currentPage + trackEntity.pageCount)
+                )
+                trackRepository.insertOrUpdatePage(entity = trackEntity)
+                clearUiState()
+            }
         }
     }
 
