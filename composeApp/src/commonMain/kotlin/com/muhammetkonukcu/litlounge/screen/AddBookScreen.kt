@@ -108,10 +108,16 @@ import org.koin.core.annotation.KoinExperimentalAPI
 
 @OptIn(KoinExperimentalAPI::class)
 @Composable
-fun AddBookScreen(navController: NavController, innerPadding: PaddingValues) {
+fun AddBookScreen(bookId: Int? = null, navController: NavController, innerPadding: PaddingValues) {
     val viewModel: AddBookViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
+
+    LaunchedEffect(Unit) {
+        if (bookId != null && bookId != 0) {
+            viewModel.getBookById(bookId)
+        }
+    }
 
     Scaffold(
         modifier = Modifier.padding(innerPadding),

@@ -125,7 +125,7 @@ fun HomeScreen(navController: NavController, innerPadding: PaddingValues) {
                 TextButton(
                     colors = getButtonColors(),
                     onClick = {
-                        navController.navigate("AddBook") {
+                        navController.navigate("AddBook/0") {
                             launchSingleTop = true
                         }
                     }
