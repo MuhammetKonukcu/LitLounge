@@ -95,8 +95,14 @@ fun MainScreen() {
                                 innerPadding = innerPadding
                             )
                         }
-                        composable("AddBook") {
+                        composable(
+                            route = "AddBook/{id}",
+                            arguments = listOf(
+                                navArgument(name = "id") { type = NavType.IntType }
+                            )) { backStack ->
+                            val bookId = backStack.arguments?.getInt("id")
                             AddBookScreen(
+                                bookId = bookId,
                                 navController = navController,
                                 innerPadding = innerPadding
                             )
