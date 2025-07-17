@@ -19,6 +19,26 @@ class AddBookViewModel(private val booksRepository: BooksRepository) : ViewModel
     private val _uiState = MutableStateFlow(AddBookUiState())
     val uiState: StateFlow<AddBookUiState> = _uiState.asStateFlow()
 
+    fun getBookById(bookId: Int) {
+        viewModelScope.launch {
+            booksRepository.getBookById(bookId).collect { book ->
+                book ?: return@collect
+                _uiState.update {
+                    it.copy(
+                        name = book.name,
+                        imageURL = book.imageURL,
+                        finished = book.finished,
+                        totalPage = book.totalPage,
+                        authorName = book.authorName,
+                        currentPage = book.currentPage,
+                        startTimestamp = book.startTimestamp,
+                        finishTimestamp = book.finishTimestamp
+                    )
+                }
+            }
+        }
+    }
+
     fun onNameChange(new: String) {
         _uiState.update { it.copy(name = new) }
     }
