@@ -25,6 +25,7 @@ class AddBookViewModel(private val booksRepository: BooksRepository) : ViewModel
                 book ?: return@collect
                 _uiState.update {
                     it.copy(
+                        id = book.id,
                         name = book.name,
                         imageURL = book.imageURL,
                         finished = book.finished,
@@ -100,6 +101,7 @@ class AddBookViewModel(private val booksRepository: BooksRepository) : ViewModel
                 if (uiState.value.finished) uiState.value.finishTimestamp else ""
             booksRepository.insertBook(
                 BookEntity(
+                    id = uiState.value.id,
                     name = uiState.value.name,
                     authorName = uiState.value.authorName,
                     totalPage = uiState.value.totalPage,
@@ -110,6 +112,14 @@ class AddBookViewModel(private val booksRepository: BooksRepository) : ViewModel
                     finished = uiState.value.finished
                 )
             )
+            clearUiState()
+        }
+    }
+
+    fun deleteBookFromTheDatabase(bookId: Int?) {
+        viewModelScope.launch {
+            if (bookId == null) return@launch
+            booksRepository.deleteBook(bookId)
             clearUiState()
         }
     }
