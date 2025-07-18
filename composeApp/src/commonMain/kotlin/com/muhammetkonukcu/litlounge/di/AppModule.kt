@@ -25,7 +25,7 @@ private fun appModule(): Module = module {
     single<HomeViewModel> { HomeViewModel(get(), get(), get()) }
     single<HistoryViewModel> { HistoryViewModel(get()) }
     single<ProfileViewModel> { ProfileViewModel(get()) }
-    single<AddBookViewModel> { AddBookViewModel(get()) }
+    viewModel{ AddBookViewModel(get()) }
     viewModel { BookDetailViewModel(get(), get()) }
 }
 
