@@ -1,6 +1,7 @@
 package com.muhammetkonukcu.litlounge.model
 
 data class AddBookUiState(
+    val id: Int = 0,
     val name: String = "",
     val totalPage: Int = 0,
     val currentPage: Int = 0,
