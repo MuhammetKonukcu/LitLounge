@@ -58,6 +58,7 @@ import com.kashif.imagesaverplugin.rememberImageSaverPlugin
 import com.muhammetkonukcu.litlounge.AlertMessageDialog
 import com.muhammetkonukcu.litlounge.model.AddBookUiState
 import com.muhammetkonukcu.litlounge.theme.Blue500
+import com.muhammetkonukcu.litlounge.theme.Red500
 import com.muhammetkonukcu.litlounge.theme.White
 import com.muhammetkonukcu.litlounge.utils.PermissionCallback
 import com.muhammetkonukcu.litlounge.utils.PermissionStatus
@@ -89,6 +90,7 @@ import litlounge.composeapp.generated.resources.how_many_pages_is_the_book
 import litlounge.composeapp.generated.resources.open_camera
 import litlounge.composeapp.generated.resources.permission_required_title
 import litlounge.composeapp.generated.resources.ph_arrow_left
+import litlounge.composeapp.generated.resources.remove_book
 import litlounge.composeapp.generated.resources.save
 import litlounge.composeapp.generated.resources.select_from_gallery
 import litlounge.composeapp.generated.resources.settings
@@ -121,7 +123,16 @@ fun AddBookScreen(bookId: Int? = null, navController: NavController, innerPaddin
 
     Scaffold(
         modifier = Modifier.padding(innerPadding),
-        topBar = { TopAppBar(navController) },
+        topBar = {
+            TopAppBar(
+                navController = navController,
+                bookId = bookId,
+                removeBook = {
+                    viewModel.deleteBookFromTheDatabase(bookId)
+                    navController.navigateUp()
+                }
+            )
+        },
         bottomBar = { BottomBar(viewModel = viewModel, navController = navController) }
     ) { contentPadding ->
         Column(
@@ -207,24 +218,47 @@ fun AddBookScreen(bookId: Int? = null, navController: NavController, innerPaddin
 }
 
 @Composable
-private fun TopAppBar(navController: NavController, modifier: Modifier = Modifier) {
+fun TopAppBar(
+    navController: NavController,
+    bookId: Int?,
+    removeBook: () -> Unit = {},
+    modifier: Modifier = Modifier
+) {
     Row(
-        modifier = modifier.fillMaxWidth().padding(horizontal = 2.dp),
-        verticalAlignment = Alignment.CenterVertically
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        IconButton(onClick = { navController.navigateUp() }) {
-            Icon(
-                imageVector = vectorResource(Res.drawable.ph_arrow_left),
-                contentDescription = stringResource(Res.string.back),
-                tint = MaterialTheme.colorScheme.primary
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            IconButton(onClick = { navController.navigateUp() }) {
+                Icon(
+                    imageVector = vectorResource(Res.drawable.ph_arrow_left),
+                    contentDescription = stringResource(Res.string.back),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+            Spacer(Modifier.width(4.dp))
+            Text(
+                text = stringResource(Res.string.add_a_book),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary
             )
         }
 
-        Text(
-            text = stringResource(Res.string.add_a_book),
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.primary
-        )
+        if (bookId != null && bookId != 0) {
+            TextButton(
+                onClick = { removeBook.invoke() },
+                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+            ) {
+                Text(
+                    text = stringResource(Res.string.remove_book),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = Red500
+                )
+            }
+        }
     }
 }
 
