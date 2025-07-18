@@ -15,6 +15,7 @@
     <string name="hello_name">Merhaba %1$s 👋</string>
     <string name="what_are_you_reading_right_now">Şu Anda Ne Okuyorsun?</string>
     <string name="add_a_book">Kitap Ekle</string>
+    <string name="remove_book">Kitabı Sil</string>
     <string name="i_have_read">Okuduklarım</string>
     <string name="i_will_read">Okuyacaklarım</string>
     <string name="book_name">Kitap Adı</string>

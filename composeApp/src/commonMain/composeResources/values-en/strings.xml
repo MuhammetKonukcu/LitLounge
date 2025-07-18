@@ -15,6 +15,7 @@
     <string name="hello_name">Hello %1$s 👋</string>
     <string name="what_are_you_reading_right_now">What Are You Reading Right Now ?</string>
     <string name="add_a_book">Add a Book</string>
+    <string name="remove_book">Remove Book</string>
     <string name="i_have_read">I Have Read</string>
     <string name="i_will_read">I Will Read</string>
     <string name="book_name">Book Name</string>
