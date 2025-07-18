@@ -43,8 +43,10 @@ fun HistoryScreen(navController: NavController, innerPadding: PaddingValues) {
                 count = historyPagingItems.itemCount,
                 key = { index -> historyPagingItems[index]?.id ?: 0 }) { index ->
                 val historyItem = historyPagingItems[index]
-                historyItem?.let {
-                    HistoryItem(entity = it, onClick = {})
+                historyItem?.let { item ->
+                    HistoryItem(
+                        entity = item,
+                        onClick = { navController.navigate("AddBook/${item.id}") })
                 }
             }
         }
