@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDate
+import network.chaintech.kmp_date_time_picker.utils.now
 
 class HomeViewModel(
     private val usersRepository: UsersRepository,
@@ -28,6 +30,9 @@ class HomeViewModel(
         booksRepository.getCurrentlyReadBooks()
             .cachedIn(viewModelScope)
 
+    private val _finishedBooksCountFlow = MutableStateFlow<Int?>(null)
+    val finishedBooksCountFlow: StateFlow<Int?> = _finishedBooksCountFlow.asStateFlow()
+
     val pageTrackPagingDataFlow: Flow<PagingData<PageEntity>> =
         pageTrackRepository.getFullPageTrack()
 
@@ -37,6 +42,14 @@ class HomeViewModel(
             user.let {
                 _userData.value = it
             }
+
+            val currentMonthNumber = LocalDate.now().monthNumber
+            val monthStr = currentMonthNumber.toString().padStart(2, '0')
+
+            booksRepository.getFinishedCountByMonth(monthStr)
+                .collect { count ->
+                    _finishedBooksCountFlow.value = count
+                }
         }
     }
 }
