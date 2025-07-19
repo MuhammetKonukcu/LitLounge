@@ -22,6 +22,13 @@ interface BooksDao {
     @Query("SELECT * FROM books WHERE id = :id")
     fun getBookById(id: Int): Flow<BookEntity?>
 
-        @Query("DELETE FROM books WHERE id = :id")
-        suspend fun deleteBook(id: Int)
+    @Query("DELETE FROM books WHERE id = :id")
+    suspend fun deleteBook(id: Int)
+
+    @Query("""
+        SELECT COUNT(*) 
+          FROM books 
+         WHERE strftime('%m', finishTimestamp) = :monthStr
+    """)
+    fun getFinishedCountByMonth(monthStr: String): Flow<Int?>
 }
