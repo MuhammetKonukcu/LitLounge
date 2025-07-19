@@ -14,6 +14,10 @@ class BooksRepositoryImpl(private val booksDao: BooksDao) : BooksRepository {
 
     override suspend fun getBookById(id: Int) = booksDao.getBookById(id)
 
+    override fun getFinishedCountByMonth(monthStr: String): Flow<Int?> {
+        return booksDao.getFinishedCountByMonth(monthStr)
+    }
+
     override fun getBooks(pageSize: Int): Flow<PagingData<BookEntity>> {
         return Pager(
             config = PagingConfig(
