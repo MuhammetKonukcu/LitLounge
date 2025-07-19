@@ -25,7 +25,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -57,10 +56,14 @@ import com.muhammetkonukcu.litlounge.viewmodel.HomeViewModel
 import kotlinx.datetime.LocalDate
 import litlounge.composeapp.generated.resources.Res
 import litlounge.composeapp.generated.resources.add_a_book
+import litlounge.composeapp.generated.resources.congratulations_you_have_achieved_your_goal
 import litlounge.composeapp.generated.resources.currently_reading
 import litlounge.composeapp.generated.resources.hello_name
+import litlounge.composeapp.generated.resources.monthly_book_goal
 import litlounge.composeapp.generated.resources.my_friend
 import litlounge.composeapp.generated.resources.what_are_you_reading_right_now
+import litlounge.composeapp.generated.resources.x_books_left_to_reach_your_goal
+import litlounge.composeapp.generated.resources.your_goal_this_month
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
@@ -70,6 +73,7 @@ import org.koin.core.annotation.KoinExperimentalAPI
 fun HomeScreen(navController: NavController, innerPadding: PaddingValues) {
     val viewModel = koinViewModel<HomeViewModel>()
     val userData by viewModel.userData.collectAsState()
+    val finishedBookCount by viewModel.finishedBooksCountFlow.collectAsState()
     val readingBooksPagingData = viewModel.readingBooksPagingDataFlow.collectAsLazyPagingItems()
     val pageTrackPagingData = viewModel.pageTrackPagingDataFlow.collectAsLazyPagingItems()
 
@@ -135,6 +139,17 @@ fun HomeScreen(navController: NavController, innerPadding: PaddingValues) {
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
+            }
+
+            if (userData?.monthlyBookGoal != null && userData?.monthlyBookGoal != 0) {
+                finishedBookCount?.let { bookCount ->
+                    MonthlyGoalColumn(
+                        bookGoal = userData?.monthlyBookGoal ?: 0,
+                        bookCount = bookCount
+                    )
+                }
+
+                DashedDivider()
             }
 
             PagesBarChartWithLazyRow(
@@ -354,6 +369,39 @@ private fun PagesBarChartWithLazyRow(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun MonthlyGoalColumn(bookGoal: Int, bookCount: Int) {
+    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text(
+            text = stringResource(Res.string.monthly_book_goal),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.primary
+        )
+
+        Text(
+            text = stringResource(Res.string.your_goal_this_month, bookGoal),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.primary
+        )
+        if (bookCount >= bookGoal) {
+            Text(
+                text = stringResource(Res.string.congratulations_you_have_achieved_your_goal),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+        } else {
+            Text(
+                text = stringResource(
+                    Res.string.x_books_left_to_reach_your_goal,
+                    bookGoal - bookCount
+                ),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
         }
     }
 }
