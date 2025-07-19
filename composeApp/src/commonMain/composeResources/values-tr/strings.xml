@@ -48,5 +48,7 @@
     <string name="camera_permission_message">Kameraya erişim izni verin. İzinleri cihaz ayarlarından yönetebilirsiniz.</string>
     <string name="settings">Ayarlar</string>
     <string name="currently_reading">Devam Ettiğim Kitaplar</string>
-    <string name="how_many_pages_did_you_read_today">Bugün kaç sayfa okudun ?</string>
+    <string name="your_goal_this_month">Bu Ay Hedefiniz %1$d kitap bitirmek.</string>
+    <string name="congratulations_you_have_achieved_your_goal">Tebrikler, hedefinize ulaştınız 🎉</string>
+    <string name="x_books_left_to_reach_your_goal">Hedefinize ulaşmanıza %1$d kitap kaldı.</string>
 </resources>

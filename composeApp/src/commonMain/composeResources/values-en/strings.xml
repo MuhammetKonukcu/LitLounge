@@ -49,4 +49,7 @@
     <string name="settings">Settings</string>
     <string name="currently_reading">Currently Reading</string>
     <string name="how_many_pages_did_you_read_today">How many pages did you read today?</string>
+    <string name="your_goal_this_month">Your goal this month is to finish %1$d books.</string>
+    <string name="congratulations_you_have_achieved_your_goal">Congratulations, you've reached your goal 🎉</string>
+    <string name="x_books_left_to_reach_your_goal">You are %1$d books away from reaching your goal.</string>
 </resources>
