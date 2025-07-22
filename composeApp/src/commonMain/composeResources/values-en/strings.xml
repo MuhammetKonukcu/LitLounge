@@ -52,4 +52,6 @@
     <string name="your_goal_this_month">Your goal this month is to finish %1$d books.</string>
     <string name="congratulations_you_have_achieved_your_goal">Congratulations, you've reached your goal 🎉</string>
     <string name="x_books_left_to_reach_your_goal">You are %1$d books away from reaching your goal.</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
 </resources>
