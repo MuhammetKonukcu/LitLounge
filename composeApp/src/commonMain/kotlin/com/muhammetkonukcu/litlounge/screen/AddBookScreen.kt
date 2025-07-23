@@ -283,9 +283,9 @@ private fun BottomBar(
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val isClearBtnEnabled = uiState != AddBookUiState()
+    val isClearBtnEnabled = uiState != AddBookUiState() && !uiState.isImageSaving
     val isSaveBtnEnabled = uiState.name.isNotBlank() && uiState.authorName.isNotBlank() &&
-            uiState.totalPage > 0 && uiState.startTimestamp.isNotBlank()
+            uiState.totalPage > 0 && uiState.startTimestamp.isNotBlank() && !uiState.isImageSaving
     Row(modifier = modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp)) {
         BottomButton(
             modifier = Modifier.weight(1f),
