@@ -54,5 +54,5 @@
     <string name="x_books_left_to_reach_your_goal">You are %1$d books away from reaching your goal.</string>
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
-    <string name="image_saving">Image Saving...</string>
+    <string name="saving_image">Image Saving...</string>
 </resources>
