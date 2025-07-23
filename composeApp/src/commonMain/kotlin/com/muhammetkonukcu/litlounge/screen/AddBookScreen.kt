@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -23,9 +24,11 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxColors
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -57,6 +60,7 @@ import com.kashif.imagesaverplugin.ImageSaverConfig
 import com.kashif.imagesaverplugin.rememberImageSaverPlugin
 import com.muhammetkonukcu.litlounge.AlertMessageDialog
 import com.muhammetkonukcu.litlounge.model.AddBookUiState
+import com.muhammetkonukcu.litlounge.theme.Black
 import com.muhammetkonukcu.litlounge.theme.Blue500
 import com.muhammetkonukcu.litlounge.theme.Red500
 import com.muhammetkonukcu.litlounge.theme.White
@@ -90,6 +94,7 @@ import litlounge.composeapp.generated.resources.how_many_pages_is_the_book
 import litlounge.composeapp.generated.resources.open_camera
 import litlounge.composeapp.generated.resources.permission_required_title
 import litlounge.composeapp.generated.resources.ph_arrow_left
+import litlounge.composeapp.generated.resources.ph_cancel
 import litlounge.composeapp.generated.resources.remove_book
 import litlounge.composeapp.generated.resources.save
 import litlounge.composeapp.generated.resources.select_from_gallery
@@ -211,6 +216,9 @@ fun AddBookScreen(bookId: Int? = null, navController: NavController, innerPaddin
                 imageURL = uiState.imageURL,
                 onImageSelected = { imageUrl ->
                     viewModel.saveImage(imageSaverPlugin = imageSaverPlugin, byteArray = imageUrl)
+                },
+                onImageRemoved = {
+                    viewModel.onImageURLChange("")
                 }
             )
         }
@@ -299,7 +307,8 @@ private fun BottomBar(
 @Composable
 private fun OpenCameraField(
     imageURL: String,
-    onImageSelected: (ByteArray?) -> Unit
+    onImageSelected: (ByteArray?) -> Unit,
+    onImageRemoved: () -> Unit = {}
 ) {
     var openCameraClicked by remember { mutableStateOf(false) }
     var openGalleryClicked by remember { mutableStateOf(false) }
@@ -328,11 +337,29 @@ private fun OpenCameraField(
             )
         }
     } else {
-        PlatformImage(
-            imageURL = imageURL,
-            modifier = Modifier.fillMaxWidth().aspectRatio(1f).clip(RoundedCornerShape(12.dp)),
-            contentScale = ContentScale.Crop
-        )
+        Box(modifier = Modifier.fillMaxWidth().aspectRatio(1f).clip(RoundedCornerShape(12.dp))) {
+            PlatformImage(
+                imageURL = imageURL,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+
+            FilledTonalIconButton(
+                onClick = { onImageRemoved.invoke() },
+                modifier = Modifier.align(Alignment.TopEnd),
+                colors = IconButtonDefaults.filledTonalIconButtonColors(
+                    containerColor = Black.copy(
+                        alpha = 0.4f
+                    )
+                )
+            ) {
+                Icon(
+                    imageVector = vectorResource(Res.drawable.ph_cancel),
+                    contentDescription = stringResource(Res.string.cancel),
+                    tint = White
+                )
+            }
+        }
     }
 
     if (openCameraClicked) {
