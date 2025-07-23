@@ -10,4 +10,5 @@ data class AddBookUiState(
     val startTimestamp: String = "",
     val finishTimestamp: String = "",
     val finished: Boolean = false,
+    val isImageSaving: Boolean = false,
 )
