@@ -1,5 +1,6 @@
 package com.muhammetkonukcu.litlounge.screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -24,6 +26,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxColors
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -97,6 +100,7 @@ import litlounge.composeapp.generated.resources.ph_arrow_left
 import litlounge.composeapp.generated.resources.ph_cancel
 import litlounge.composeapp.generated.resources.remove_book
 import litlounge.composeapp.generated.resources.save
+import litlounge.composeapp.generated.resources.saving_image
 import litlounge.composeapp.generated.resources.select_from_gallery
 import litlounge.composeapp.generated.resources.settings
 import litlounge.composeapp.generated.resources.the_day_i_finished
@@ -214,12 +218,14 @@ fun AddBookScreen(bookId: Int? = null, navController: NavController, innerPaddin
 
             OpenCameraField(
                 imageURL = uiState.imageURL,
+                isLoading = uiState.isImageSaving,
                 onImageSelected = { imageUrl ->
                     viewModel.saveImage(imageSaverPlugin = imageSaverPlugin, byteArray = imageUrl)
                 },
                 onImageRemoved = {
                     viewModel.onImageURLChange("")
-                }
+                },
+                onImageSaving = viewModel::onImageSaving
             )
         }
     }
@@ -307,13 +313,15 @@ private fun BottomBar(
 @Composable
 private fun OpenCameraField(
     imageURL: String,
+    isLoading: Boolean = false,
     onImageSelected: (ByteArray?) -> Unit,
-    onImageRemoved: () -> Unit = {}
+    onImageRemoved: () -> Unit = {},
+    onImageSaving: (Boolean) -> Unit = {}
 ) {
     var openCameraClicked by remember { mutableStateOf(false) }
     var openGalleryClicked by remember { mutableStateOf(false) }
 
-    if (imageURL.isBlank()) {
+    if (imageURL.isBlank() && !isLoading) {
         Column {
             Text(
                 text = stringResource(Res.string.add_photo),
@@ -336,7 +344,27 @@ private fun OpenCameraField(
                 onClick = { openGalleryClicked = true }
             )
         }
+    } else if (isLoading) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(1f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(48.dp),
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = stringResource(Res.string.saving_image),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
     } else {
+        // Image loaded state
         Box(modifier = Modifier.fillMaxWidth().aspectRatio(1f).clip(RoundedCornerShape(12.dp))) {
             PlatformImage(
                 imageURL = imageURL,
@@ -348,9 +376,7 @@ private fun OpenCameraField(
                 onClick = { onImageRemoved.invoke() },
                 modifier = Modifier.align(Alignment.TopEnd),
                 colors = IconButtonDefaults.filledTonalIconButtonColors(
-                    containerColor = Black.copy(
-                        alpha = 0.4f
-                    )
+                    containerColor = Black.copy(alpha = 0.4f)
                 )
             ) {
                 Icon(
@@ -363,22 +389,28 @@ private fun OpenCameraField(
     }
 
     if (openCameraClicked) {
-        OpenCamera { byteArray ->
-            onImageSelected.invoke(byteArray)
-            openCameraClicked = false
-        }
+        OpenCamera(
+            onImageSaving = { isLoading -> onImageSaving(isLoading) },
+            imageCapture = { byteArray ->
+                onImageSelected.invoke(byteArray)
+                openCameraClicked = false
+            }
+        )
     }
 
     if (openGalleryClicked) {
-        OpenGallery { byteArray ->
-            onImageSelected.invoke(byteArray)
-            openGalleryClicked = false
-        }
+        OpenGallery(
+            onImageSaving = { isLoading -> onImageSaving(isLoading) },
+            imageSelect = { byteArray ->
+                onImageSelected.invoke(byteArray)
+                openGalleryClicked = false
+            }
+        )
     }
 }
 
 @Composable
-private fun OpenCamera(imageCapture: (ByteArray?) -> Unit) {
+private fun OpenCamera(imageCapture: (ByteArray?) -> Unit, onImageSaving: (Boolean) -> Unit) {
     val coroutineScope = rememberCoroutineScope()
     var shouldLaunch by remember { mutableStateOf(false) }
     val cameraManager = rememberCameraManager { bitmap ->
@@ -447,15 +479,17 @@ private fun OpenCamera(imageCapture: (ByteArray?) -> Unit) {
 }
 
 @Composable
-private fun OpenGallery(imageSelect: (ByteArray?) -> Unit) {
+private fun OpenGallery(imageSelect: (ByteArray?) -> Unit, onImageSaving: (Boolean) -> Unit) {
     val coroutineScope = rememberCoroutineScope()
     var shouldLaunch by remember { mutableStateOf(false) }
     val cameraManager = rememberGalleryManager { bitmap ->
         coroutineScope.launch {
+            onImageSaving.invoke(true)
             val bitmap = withContext(Dispatchers.Default) {
                 bitmap?.toByteArray()
             }
             imageSelect.invoke(bitmap)
+            onImageSaving.invoke(false)
         }
     }
     var launchSetting by remember { mutableStateOf(value = false) }
