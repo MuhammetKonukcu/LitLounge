@@ -80,6 +80,10 @@ class AddBookViewModel(private val booksRepository: BooksRepository) : ViewModel
         _uiState.update { it.copy(finished = enabled) }
     }
 
+    fun onImageSaving(value: Boolean) {
+        _uiState.update { it.copy(isImageSaving = value) }
+    }
+
     @OptIn(ExperimentalUuidApi::class)
     fun saveImage(imageSaverPlugin: ImageSaverPlugin, byteArray: ByteArray?) {
         if (byteArray == null) return
