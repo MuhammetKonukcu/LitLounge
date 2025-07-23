@@ -333,7 +333,7 @@ private fun OpenCameraField(
                 label = stringResource(Res.string.open_camera),
                 colors = GetClearButtonColors(),
                 isEnabled = true,
-                onClick = { openCameraClicked = true }
+                onClick = { openCameraClicked = !openCameraClicked }
             )
 
             BottomButton(
@@ -341,7 +341,7 @@ private fun OpenCameraField(
                 label = stringResource(Res.string.select_from_gallery),
                 colors = GetClearButtonColors(),
                 isEnabled = true,
-                onClick = { openGalleryClicked = true }
+                onClick = { openGalleryClicked = !openGalleryClicked }
             )
         }
     } else if (isLoading) {
