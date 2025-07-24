@@ -3,6 +3,7 @@ package com.muhammetkonukcu.litlounge.utils
 import android.graphics.BitmapFactory
 import android.provider.MediaStore
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -16,6 +17,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.net.toUri
 import coil3.compose.AsyncImage
+import litlounge.composeapp.generated.resources.Res
+import litlounge.composeapp.generated.resources.placeholder_dark
+import litlounge.composeapp.generated.resources.placeholder_light
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 actual fun PlatformImage(
@@ -51,6 +56,11 @@ actual fun PlatformImage(
         }
     }
 
+    val isDarkMode = isSystemInDarkTheme()
+    val placeholderRes =
+        if (isDarkMode) painterResource(Res.drawable.placeholder_dark)
+        else painterResource(Res.drawable.placeholder_light)
+
     if (imageBitmap != null) {
         Image(
             bitmap = imageBitmap!!,
@@ -61,9 +71,11 @@ actual fun PlatformImage(
     } else if (!imageURL.startsWith("content://") && !imageURL.startsWith("file://")) {
         AsyncImage(
             model = imageURL,
-            contentDescription = null,
             modifier = modifier,
-            contentScale = contentScale
+            error = placeholderRes,
+            contentDescription = null,
+            contentScale = contentScale,
+            placeholder = placeholderRes
         )
     }
 }
