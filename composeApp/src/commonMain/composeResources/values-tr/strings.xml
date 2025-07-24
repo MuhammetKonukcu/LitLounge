@@ -54,4 +54,9 @@
     <string name="edit">Düzenle</string>
     <string name="delete">Sil</string>
     <string name="saving_image">Fotoğraf Kaydediliyor...</string>
+    <string name="add_photo_with_url">Url İle Fotoğraf Ekle</string>
+    <string name="image_url">Fotoğraf Url</string>
+    <string name="validating_url">URL Doğrulanıyor...</string>
+    <string name="invalid_url">Geçersiz Url</string>
+    <string name="valid_url">Geçerli Url</string>
 </resources>

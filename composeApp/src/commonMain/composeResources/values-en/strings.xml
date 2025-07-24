@@ -55,4 +55,10 @@
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
     <string name="saving_image">Image Saving...</string>
+    <string name="add_photo_with_url">Add Image With Url</string>
+    <string name="image_url">Image Url</string>
+    <string name="validating_url">Validating Url...</string>
+    <string name="invalid_url">Invalid Url</string>
+    <string name="valid_url">Valid Url</string>
+
 </resources>
