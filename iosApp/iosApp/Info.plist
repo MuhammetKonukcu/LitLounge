@@ -9,5 +9,11 @@
 
     <key>NSPhotoLibraryUsageDescription</key>
     <string>We need access to your photo library to select photos</string>
+
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <true/>
+    </dict>
 </dict>
 </plist>
