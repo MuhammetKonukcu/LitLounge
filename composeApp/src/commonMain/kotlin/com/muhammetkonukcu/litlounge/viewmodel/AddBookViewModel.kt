@@ -6,18 +6,32 @@ import com.kashif.imagesaverplugin.ImageSaverPlugin
 import com.muhammetkonukcu.litlounge.model.AddBookUiState
 import com.muhammetkonukcu.litlounge.room.entity.BookEntity
 import com.muhammetkonukcu.litlounge.room.repository.BooksRepository
+import com.muhammetkonukcu.litlounge.utils.ImageUrlStatus
+import com.muhammetkonukcu.litlounge.utils.ValidateImageUrlUseCase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.LocalDate
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-class AddBookViewModel(private val booksRepository: BooksRepository) : ViewModel() {
+class AddBookViewModel(
+    private val booksRepository: BooksRepository,
+    private val validateImageUrlUseCase: ValidateImageUrlUseCase
+) : ViewModel() {
     private val _uiState = MutableStateFlow(AddBookUiState())
     val uiState: StateFlow<AddBookUiState> = _uiState.asStateFlow()
+
+    private var urlValidationJob: Job? = null
 
     fun getBookById(bookId: Int) {
         viewModelScope.launch {
@@ -64,8 +78,39 @@ class AddBookViewModel(private val booksRepository: BooksRepository) : ViewModel
         }
     }
 
-    fun onImageURLChange(new: String) {
-        _uiState.update { it.copy(imageURL = new) }
+    fun onImageURLChange(new: String, isUrl: Boolean = false) {
+        _uiState.update { it.copy(imageURL = new, isNetworkImage = isUrl) }
+
+        urlValidationJob?.cancel()
+
+        urlValidationJob = viewModelScope.launch(Dispatchers.IO) {
+            try {
+                // Loading state'i göster
+                if (new.isNotBlank()) {
+                    withContext(Dispatchers.Main) {
+                        _uiState.update { it.copy(imageUrlStatus = ImageUrlStatus.VALIDATING) }
+                    }
+
+                    delay(800) // Debouncing
+
+                    if (isActive) {
+                        val status = validateImageUrlUseCase(new)
+                        withContext(Dispatchers.Main) {
+                            _uiState.update { it.copy(imageUrlStatus = status) }
+                        }
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        _uiState.update { it.copy(imageUrlStatus = ImageUrlStatus.IDLE) }
+                    }
+                }
+            } catch (e: CancellationException) {
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    _uiState.update { it.copy(imageUrlStatus = ImageUrlStatus.INVALID) }
+                }
+            }
+        }
     }
 
     fun onStartTimestampChange(new: LocalDate) {
@@ -130,5 +175,10 @@ class AddBookViewModel(private val booksRepository: BooksRepository) : ViewModel
 
     fun clearUiState() {
         _uiState.value = AddBookUiState()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        urlValidationJob?.cancel()
     }
 }
