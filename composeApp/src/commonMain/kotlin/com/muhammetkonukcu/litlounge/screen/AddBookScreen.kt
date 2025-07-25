@@ -1,6 +1,5 @@
 package com.muhammetkonukcu.litlounge.screen
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -32,6 +31,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -58,6 +58,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import coil3.compose.AsyncImage
 import com.kashif.cameraK.enums.Directory
 import com.kashif.imagesaverplugin.ImageSaverConfig
 import com.kashif.imagesaverplugin.rememberImageSaverPlugin
@@ -65,8 +66,10 @@ import com.muhammetkonukcu.litlounge.AlertMessageDialog
 import com.muhammetkonukcu.litlounge.model.AddBookUiState
 import com.muhammetkonukcu.litlounge.theme.Black
 import com.muhammetkonukcu.litlounge.theme.Blue500
+import com.muhammetkonukcu.litlounge.theme.Green500
 import com.muhammetkonukcu.litlounge.theme.Red500
 import com.muhammetkonukcu.litlounge.theme.White
+import com.muhammetkonukcu.litlounge.utils.ImageUrlStatus
 import com.muhammetkonukcu.litlounge.utils.PermissionCallback
 import com.muhammetkonukcu.litlounge.utils.PermissionStatus
 import com.muhammetkonukcu.litlounge.utils.PermissionType
@@ -82,11 +85,13 @@ import kotlinx.datetime.LocalDate
 import litlounge.composeapp.generated.resources.Res
 import litlounge.composeapp.generated.resources.add_a_book
 import litlounge.composeapp.generated.resources.add_photo
+import litlounge.composeapp.generated.resources.add_photo_with_url
 import litlounge.composeapp.generated.resources.author_name
 import litlounge.composeapp.generated.resources.author_name_hint
 import litlounge.composeapp.generated.resources.back
 import litlounge.composeapp.generated.resources.book_name
 import litlounge.composeapp.generated.resources.book_name_hint
+import litlounge.composeapp.generated.resources.book_photo
 import litlounge.composeapp.generated.resources.camera_permission_message
 import litlounge.composeapp.generated.resources.cancel
 import litlounge.composeapp.generated.resources.clear
@@ -94,6 +99,8 @@ import litlounge.composeapp.generated.resources.done
 import litlounge.composeapp.generated.resources.finished
 import litlounge.composeapp.generated.resources.gallery_permission_message
 import litlounge.composeapp.generated.resources.how_many_pages_is_the_book
+import litlounge.composeapp.generated.resources.image_url
+import litlounge.composeapp.generated.resources.invalid_url
 import litlounge.composeapp.generated.resources.open_camera
 import litlounge.composeapp.generated.resources.permission_required_title
 import litlounge.composeapp.generated.resources.ph_arrow_left
@@ -105,6 +112,8 @@ import litlounge.composeapp.generated.resources.select_from_gallery
 import litlounge.composeapp.generated.resources.settings
 import litlounge.composeapp.generated.resources.the_day_i_finished
 import litlounge.composeapp.generated.resources.the_day_i_started
+import litlounge.composeapp.generated.resources.valid_url
+import litlounge.composeapp.generated.resources.validating_url
 import litlounge.composeapp.generated.resources.which_page_are_you_left_on
 import network.chaintech.kmp_date_time_picker.ui.datepicker.WheelDatePickerView
 import network.chaintech.kmp_date_time_picker.utils.DateTimePickerView
@@ -219,13 +228,14 @@ fun AddBookScreen(bookId: Int? = null, navController: NavController, innerPaddin
             OpenCameraField(
                 imageURL = uiState.imageURL,
                 isLoading = uiState.isImageSaving,
+                imageUrlStatus = uiState.imageUrlStatus,
+                isNetworkImage = uiState.isNetworkImage,
+                onImageSaving = viewModel::onImageSaving,
+                onImageUrlChanged = viewModel::onImageURLChange,
+                onImageRemoved = { viewModel.onImageURLChange("") },
                 onImageSelected = { imageUrl ->
                     viewModel.saveImage(imageSaverPlugin = imageSaverPlugin, byteArray = imageUrl)
-                },
-                onImageRemoved = {
-                    viewModel.onImageURLChange("")
-                },
-                onImageSaving = viewModel::onImageSaving
+                }
             )
         }
     }
@@ -314,12 +324,16 @@ private fun BottomBar(
 private fun OpenCameraField(
     imageURL: String,
     isLoading: Boolean = false,
+    onImageRemoved: () -> Unit,
+    imageUrlStatus: ImageUrlStatus,
+    isNetworkImage: Boolean = false,
+    onImageSaving: (Boolean) -> Unit,
     onImageSelected: (ByteArray?) -> Unit,
-    onImageRemoved: () -> Unit = {},
-    onImageSaving: (Boolean) -> Unit = {}
+    onImageUrlChanged: (String, Boolean) -> Unit
 ) {
     var openCameraClicked by remember { mutableStateOf(false) }
     var openGalleryClicked by remember { mutableStateOf(false) }
+    var addImageUrlClicked by remember { mutableStateOf(false) }
 
     if (imageURL.isBlank() && !isLoading) {
         Column {
@@ -333,7 +347,10 @@ private fun OpenCameraField(
                 label = stringResource(Res.string.open_camera),
                 colors = GetClearButtonColors(),
                 isEnabled = true,
-                onClick = { openCameraClicked = !openCameraClicked }
+                onClick = {
+                    openCameraClicked = !openCameraClicked
+                    addImageUrlClicked = false
+                }
             )
 
             BottomButton(
@@ -341,8 +358,21 @@ private fun OpenCameraField(
                 label = stringResource(Res.string.select_from_gallery),
                 colors = GetClearButtonColors(),
                 isEnabled = true,
-                onClick = { openGalleryClicked = !openGalleryClicked }
+                onClick = {
+                    openGalleryClicked = !openGalleryClicked
+                    addImageUrlClicked = false
+                }
             )
+
+            if (!addImageUrlClicked) {
+                BottomButton(
+                    modifier = Modifier,
+                    label = stringResource(Res.string.add_photo_with_url),
+                    colors = GetClearButtonColors(),
+                    isEnabled = true,
+                    onClick = { addImageUrlClicked = !addImageUrlClicked }
+                )
+            }
         }
     } else if (isLoading) {
         Column(
@@ -363,8 +393,7 @@ private fun OpenCameraField(
                 color = MaterialTheme.colorScheme.primary
             )
         }
-    } else {
-        // Image loaded state
+    } else if (!isNetworkImage) {
         Box(modifier = Modifier.fillMaxWidth().aspectRatio(1f).clip(RoundedCornerShape(12.dp))) {
             PlatformImage(
                 imageURL = imageURL,
@@ -407,15 +436,85 @@ private fun OpenCameraField(
             }
         )
     }
+
+    if (addImageUrlClicked && !isLoading) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            ImageUrlTextField(
+                value = imageURL,
+                labelRes = Res.string.image_url,
+                keyboardType = KeyboardType.Uri,
+                onValueChange = {
+                    onImageUrlChanged.invoke(it, true)
+                },
+                textStyle = LocalTextStyle.current.copy(
+                    color = when (imageUrlStatus) {
+                        ImageUrlStatus.INVALID -> Red500
+                        ImageUrlStatus.VALID -> Green500
+                        else -> MaterialTheme.colorScheme.tertiary
+                    }
+                )
+            )
+
+            when (imageUrlStatus) {
+                ImageUrlStatus.VALIDATING -> {
+                    Text(
+                        text = stringResource(Res.string.validating_url),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.tertiary
+                    )
+                }
+
+                ImageUrlStatus.INVALID -> {
+                    Text(
+                        text = stringResource(Res.string.invalid_url),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Red500
+                    )
+                }
+
+                ImageUrlStatus.VALID -> {
+                    Text(
+                        text = stringResource(Res.string.valid_url),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Green500
+                    )
+                }
+
+                ImageUrlStatus.IDLE -> {}
+            }
+
+            if (imageUrlStatus == ImageUrlStatus.VALID && imageURL.isNotBlank()) {
+                Box(
+                    modifier = Modifier.fillMaxWidth().aspectRatio(1f)
+                        .clip(RoundedCornerShape(12.dp))
+                ) {
+                    AsyncImage(
+                        model = imageURL,
+                        contentDescription = stringResource(Res.string.book_photo),
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop,
+                    )
+                }
+            }
+        }
+    }
 }
 
 @Composable
-private fun OpenCamera(imageCapture: (ByteArray?) -> Unit, onImageSaving: (Boolean) -> Unit) {
+private fun OpenCamera(
+    imageCapture: (ByteArray?) -> Unit,
+    onImageSaving: (Boolean) -> Unit
+) {
     val coroutineScope = rememberCoroutineScope()
     var shouldLaunch by remember { mutableStateOf(false) }
     val cameraManager = rememberCameraManager { bitmap ->
         coroutineScope.launch {
+            onImageSaving.invoke(true)
             imageCapture(bitmap?.toByteArray())
+            onImageSaving.invoke(false)
         }
     }
     var launchSetting by remember { mutableStateOf(value = false) }
@@ -479,7 +578,10 @@ private fun OpenCamera(imageCapture: (ByteArray?) -> Unit, onImageSaving: (Boole
 }
 
 @Composable
-private fun OpenGallery(imageSelect: (ByteArray?) -> Unit, onImageSaving: (Boolean) -> Unit) {
+private fun OpenGallery(
+    imageSelect: (ByteArray?) -> Unit,
+    onImageSaving: (Boolean) -> Unit
+) {
     val coroutineScope = rememberCoroutineScope()
     var shouldLaunch by remember { mutableStateOf(false) }
     val cameraManager = rememberGalleryManager { bitmap ->
@@ -593,6 +695,25 @@ private fun BookTextField(
 }
 
 @Composable
+private fun ImageUrlTextField(
+    labelRes: StringResource,
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholderRes: StringResource? = null,
+    textStyle: TextStyle,
+    keyboardType: KeyboardType = KeyboardType.Text,
+) {
+    LabeledOutlinedTextField(
+        label = stringResource(labelRes),
+        value = value,
+        textStyle = textStyle,
+        keyboardType = keyboardType,
+        onValueChange = onValueChange,
+        placeholder = placeholderRes?.let { stringResource(it) } ?: ""
+    )
+}
+
+@Composable
 private fun DateField(
     labelRes: StringResource,
     dateString: String,
@@ -661,6 +782,7 @@ private fun LabeledOutlinedTextField(
     value: String,
     readOnly: Boolean = false,
     keyboardType: KeyboardType = KeyboardType.Text,
+    textStyle: TextStyle = MaterialTheme.typography.bodyMedium,
     onValueChange: (String) -> Unit,
     placeholder: String = "",
     onClick: () -> Unit = {},
@@ -683,7 +805,7 @@ private fun LabeledOutlinedTextField(
                 )
             },
             readOnly = readOnly,
-            textStyle = MaterialTheme.typography.bodyMedium,
+            textStyle = textStyle,
             singleLine = true,
             colors = GetTextFieldColors(),
             modifier = Modifier.fillMaxWidth().clickable {
