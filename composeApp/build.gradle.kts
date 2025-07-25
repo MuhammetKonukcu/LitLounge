@@ -38,6 +38,8 @@ kotlin {
             // Koin
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
+            //Ktor
+            implementation(libs.ktor.client.android)
             // Permissions
             implementation(libs.accompanist.permissions)
         }
@@ -56,6 +58,12 @@ kotlin {
             api(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.koin.composeVM)
+            //Ktor
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.json)
+            implementation(libs.ktor.serialization)
+            implementation(libs.ktor.client.serialization)
+            implementation(libs.ktor.client.content.negotiation)
             //Coil
             implementation(libs.coil.mp)
             implementation(libs.coil.compose)
@@ -76,6 +84,10 @@ kotlin {
             //Resources
             @OptIn(ExperimentalComposeLibrary::class)
             implementation(compose.components.resources)
+        }
+        iosMain.dependencies {
+            //Ktor
+            implementation(libs.ktor.client.darwin)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
