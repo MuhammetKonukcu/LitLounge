@@ -59,4 +59,5 @@
     <string name="validating_url">URL Doğrulanıyor...</string>
     <string name="invalid_url">Geçersiz Url</string>
     <string name="valid_url">Geçerli Url</string>
+    <string name="my_library">Kitaplığım</string>
 </resources>

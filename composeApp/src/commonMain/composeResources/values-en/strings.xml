@@ -60,5 +60,5 @@
     <string name="validating_url">Validating Url...</string>
     <string name="invalid_url">Invalid Url</string>
     <string name="valid_url">Valid Url</string>
-
+    <string name="my_library">My Library</string>
 </resources>
