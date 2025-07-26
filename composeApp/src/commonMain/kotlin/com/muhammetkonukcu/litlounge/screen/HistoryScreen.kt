@@ -48,6 +48,7 @@ import com.muhammetkonukcu.litlounge.viewmodel.HistoryViewModel
 import litlounge.composeapp.generated.resources.Res
 import litlounge.composeapp.generated.resources.delete
 import litlounge.composeapp.generated.resources.edit
+import litlounge.composeapp.generated.resources.my_library
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
@@ -62,9 +63,11 @@ fun HistoryScreen(navController: NavController, innerPadding: PaddingValues) {
     var selectedBookId by remember { mutableStateOf(0) }
     var selectedBookName by remember { mutableStateOf("") }
 
-    Scaffold(modifier = Modifier.padding(innerPadding)) {
+    Scaffold(
+        modifier = Modifier.padding(innerPadding),
+        topBar = { HistoryTopAppBar(modifier = Modifier) }) { paddingValues ->
         LazyColumn(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().padding(paddingValues),
             contentPadding = PaddingValues(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -101,6 +104,20 @@ fun HistoryScreen(navController: NavController, innerPadding: PaddingValues) {
                 viewModel.removeBookFromDatabase(bookId)
                 isSheetOpen = false
             }
+        )
+    }
+}
+
+@Composable
+private fun HistoryTopAppBar(modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = stringResource(Res.string.my_library),
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.primary
         )
     }
 }
