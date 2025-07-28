@@ -19,6 +19,9 @@ interface BooksDao {
     @Query("SELECT * FROM books ORDER BY startTimestamp DESC")
     fun getBooks(): PagingSource<Int, BookEntity>
 
+    @Query("SELECT * FROM books WHERE currentPage >= totalPage ORDER BY finishTimestamp DESC")
+    fun getFinishedBooks(): PagingSource<Int, BookEntity>
+
     @Query("SELECT * FROM books WHERE id = :id")
     fun getBookById(id: Int): Flow<BookEntity?>
 
