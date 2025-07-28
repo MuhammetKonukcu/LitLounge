@@ -60,4 +60,8 @@
     <string name="invalid_url">Geçersiz Url</string>
     <string name="valid_url">Geçerli Url</string>
     <string name="my_library">Kitaplığım</string>
+    <string name="filter_all">Tüm Kitaplar</string>
+    <string name="filter_reading">Devam Ettiğim Kitaplar</string>
+    <string name="filter_finished">Bitirdiğim Kitaplar</string>
+
 </resources>
