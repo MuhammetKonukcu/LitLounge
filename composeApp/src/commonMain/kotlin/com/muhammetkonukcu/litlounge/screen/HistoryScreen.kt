@@ -79,7 +79,9 @@ fun HistoryScreen(navController: NavController, innerPadding: PaddingValues) {
         topBar = {
             HistoryTopAppBar(
                 modifier = Modifier,
-                onFilterSelected = { filter ->}
+                onFilterSelected = { filter ->
+                    viewModel.getBooksByFilter(filter)
+                }
             )
         }) { paddingValues ->
         LazyColumn(
