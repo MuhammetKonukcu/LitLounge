@@ -28,6 +28,16 @@ class BooksRepositoryImpl(private val booksDao: BooksDao) : BooksRepository {
         ).flow
     }
 
+    override fun getFinishedBooks(pageSize: Int): Flow<PagingData<BookEntity>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = pageSize,
+                enablePlaceholders = false
+            ),
+            pagingSourceFactory = { booksDao.getFinishedBooks() }
+        ).flow
+    }
+
     override fun getCurrentlyReadBooks(pageSize: Int): Flow<PagingData<BookEntity>> {
         return Pager(
             config = PagingConfig(
