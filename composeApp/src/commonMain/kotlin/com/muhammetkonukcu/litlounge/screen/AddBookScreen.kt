@@ -132,6 +132,7 @@ fun AddBookScreen(bookId: Int? = null, navController: NavController, innerPaddin
     val viewModel: AddBookViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
+    var finishedDateEmptyError by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         if (bookId != null && bookId != 0) {
@@ -151,7 +152,12 @@ fun AddBookScreen(bookId: Int? = null, navController: NavController, innerPaddin
                 }
             )
         },
-        bottomBar = { BottomBar(viewModel = viewModel, navController = navController) }
+        bottomBar = {
+            BottomBar(
+                viewModel = viewModel,
+                navController = navController,
+                handleErrorMessage = { finishedDateEmptyError = true })
+        }
     ) { contentPadding ->
         Column(
             Modifier
@@ -209,6 +215,7 @@ fun AddBookScreen(bookId: Int? = null, navController: NavController, innerPaddin
 
             if (uiState.finished) {
                 DateField(
+                    isError = finishedDateEmptyError,
                     labelRes = Res.string.the_day_i_finished,
                     dateString = uiState.finishTimestamp,
                     startDateString = uiState.startTimestamp,
@@ -245,7 +252,7 @@ fun AddBookScreen(bookId: Int? = null, navController: NavController, innerPaddin
 fun TopAppBar(
     navController: NavController,
     bookId: Int?,
-    removeBook: () -> Unit = {},
+    removeBook: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -290,6 +297,7 @@ fun TopAppBar(
 private fun BottomBar(
     viewModel: AddBookViewModel,
     navController: NavController,
+    handleErrorMessage: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -313,8 +321,12 @@ private fun BottomBar(
             colors = GetSaveButtonColors(),
             isEnabled = isSaveBtnEnabled,
             onClick = {
-                viewModel.saveBookToTheDatabase()
-                navController.navigateUp()
+                if (uiState.finished && uiState.finishTimestamp.isBlank()) {
+                    handleErrorMessage.invoke()
+                } else {
+                    viewModel.saveBookToTheDatabase()
+                    navController.navigateUp()
+                }
             }
         )
     }
@@ -715,6 +727,7 @@ private fun ImageUrlTextField(
 
 @Composable
 private fun DateField(
+    isError: Boolean = false,
     labelRes: StringResource,
     dateString: String,
     startDateString: String = "",
@@ -728,6 +741,7 @@ private fun DateField(
         else LocalDate.MIN()
 
     LabeledClickableField(
+        isError = isError,
         label = stringResource(labelRes),
         value = dateString,
         onClick = { showPicker = true }
@@ -752,6 +766,7 @@ private fun DateField(
             ),
             rowCount = 5,
             height = 180.dp,
+            containerColor = MaterialTheme.colorScheme.background,
             dateTextStyle = TextStyle(
                 fontWeight = FontWeight(600),
             ),
@@ -822,6 +837,7 @@ private fun LabeledOutlinedTextField(
 
 @Composable
 private fun LabeledClickableField(
+    isError: Boolean = false,
     label: String,
     value: String,
     placeholder: String = "",
@@ -831,8 +847,8 @@ private fun LabeledClickableField(
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.primary
+            style = MaterialTheme.typography.bodyLarge,
+            color = if (isError && value.isBlank()) Red500 else MaterialTheme.colorScheme.primary
         )
         Spacer(Modifier.height(4.dp))
         Box(
@@ -841,7 +857,7 @@ private fun LabeledClickableField(
                 .height(56.dp)
                 .border(
                     width = 1.dp,
-                    color = MaterialTheme.colorScheme.outline,
+                    color = if (isError && value.isBlank()) Red500 else MaterialTheme.colorScheme.outline,
                     shape = MaterialTheme.shapes.small
                 )
                 .clip(MaterialTheme.shapes.small)
@@ -849,7 +865,7 @@ private fun LabeledClickableField(
             contentAlignment = Alignment.CenterStart
         ) {
             Text(
-                text = if (value.isNotEmpty()) value else placeholder,
+                text = value.ifEmpty { placeholder },
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(horizontal = 16.dp)
