@@ -209,7 +209,7 @@ fun AddBookScreen(bookId: Int? = null, navController: NavController, innerPaddin
                 Checkbox(
                     checked = uiState.finished,
                     onCheckedChange = viewModel::onFinishedToggle,
-                    colors = GetCheckboxColors()
+                    colors = getCheckboxColors()
                 )
             }
 
@@ -308,7 +308,7 @@ private fun BottomBar(
         BottomButton(
             modifier = Modifier.weight(1f),
             label = stringResource(Res.string.clear),
-            colors = GetClearButtonColors(),
+            colors = getClearButtonColors(),
             isEnabled = isClearBtnEnabled,
             onClick = { viewModel.clearUiState() }
         )
@@ -318,7 +318,7 @@ private fun BottomBar(
         BottomButton(
             modifier = Modifier.weight(1f),
             label = stringResource(Res.string.save),
-            colors = GetSaveButtonColors(),
+            colors = getSaveButtonColors(),
             isEnabled = isSaveBtnEnabled,
             onClick = {
                 if (uiState.finished && uiState.finishTimestamp.isBlank()) {
@@ -357,7 +357,7 @@ private fun OpenCameraField(
             BottomButton(
                 modifier = Modifier,
                 label = stringResource(Res.string.open_camera),
-                colors = GetClearButtonColors(),
+                colors = getClearButtonColors(),
                 isEnabled = true,
                 onClick = {
                     openCameraClicked = !openCameraClicked
@@ -368,7 +368,7 @@ private fun OpenCameraField(
             BottomButton(
                 modifier = Modifier,
                 label = stringResource(Res.string.select_from_gallery),
-                colors = GetClearButtonColors(),
+                colors = getClearButtonColors(),
                 isEnabled = true,
                 onClick = {
                     openGalleryClicked = !openGalleryClicked
@@ -380,7 +380,7 @@ private fun OpenCameraField(
                 BottomButton(
                     modifier = Modifier,
                     label = stringResource(Res.string.add_photo_with_url),
-                    colors = GetClearButtonColors(),
+                    colors = getClearButtonColors(),
                     isEnabled = true,
                     onClick = { addImageUrlClicked = !addImageUrlClicked }
                 )
@@ -822,7 +822,7 @@ private fun LabeledOutlinedTextField(
             readOnly = readOnly,
             textStyle = textStyle,
             singleLine = true,
-            colors = GetTextFieldColors(),
+            colors = getTextFieldColors(),
             modifier = Modifier.fillMaxWidth().clickable {
                 if (readOnly) {
                     onClick.invoke()
@@ -875,7 +875,7 @@ private fun LabeledClickableField(
 }
 
 @Composable
-private fun GetTextFieldColors(): TextFieldColors {
+private fun getTextFieldColors(): TextFieldColors {
     val colors = TextFieldDefaults.colors().copy(
         focusedTextColor = MaterialTheme.colorScheme.primary,
         focusedIndicatorColor = MaterialTheme.colorScheme.primary,
@@ -895,7 +895,7 @@ private fun GetTextFieldColors(): TextFieldColors {
 }
 
 @Composable
-private fun GetCheckboxColors(): CheckboxColors {
+private fun getCheckboxColors(): CheckboxColors {
     val colors = CheckboxDefaults.colors().copy(
         checkedCheckmarkColor = White,
         uncheckedCheckmarkColor = MaterialTheme.colorScheme.tertiary,
@@ -908,7 +908,7 @@ private fun GetCheckboxColors(): CheckboxColors {
 }
 
 @Composable
-private fun GetClearButtonColors(): ButtonColors {
+private fun getClearButtonColors(): ButtonColors {
     val colors = ButtonDefaults.buttonColors().copy(
         containerColor = MaterialTheme.colorScheme.secondary,
         contentColor = MaterialTheme.colorScheme.background,
@@ -919,7 +919,7 @@ private fun GetClearButtonColors(): ButtonColors {
 }
 
 @Composable
-private fun GetSaveButtonColors(): ButtonColors {
+private fun getSaveButtonColors(): ButtonColors {
     val colors = ButtonDefaults.buttonColors().copy(
         containerColor = Blue500,
         contentColor = White,
