@@ -22,26 +22,39 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.muhammetkonukcu.litlounge.AlertMessageDialog
 import com.muhammetkonukcu.litlounge.theme.Blue500
 import com.muhammetkonukcu.litlounge.theme.White
+import com.muhammetkonukcu.litlounge.utils.PermissionCallback
+import com.muhammetkonukcu.litlounge.utils.PermissionStatus
+import com.muhammetkonukcu.litlounge.utils.PermissionType
+import com.muhammetkonukcu.litlounge.utils.createPermissionsManager
 import com.muhammetkonukcu.litlounge.viewmodel.ProfileViewModel
 import litlounge.composeapp.generated.resources.Res
+import litlounge.composeapp.generated.resources.cancel
 import litlounge.composeapp.generated.resources.daily_page_goal
 import litlounge.composeapp.generated.resources.daily_page_goal_hint
+import litlounge.composeapp.generated.resources.gallery_permission_message
 import litlounge.composeapp.generated.resources.hello_name
 import litlounge.composeapp.generated.resources.monthly_book_goal
 import litlounge.composeapp.generated.resources.monthly_book_goal_hint
 import litlounge.composeapp.generated.resources.my_friend
 import litlounge.composeapp.generated.resources.name
 import litlounge.composeapp.generated.resources.name_hint
+import litlounge.composeapp.generated.resources.permission_required_title
 import litlounge.composeapp.generated.resources.send_me_a_notification
+import litlounge.composeapp.generated.resources.settings
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
@@ -51,6 +64,7 @@ import org.koin.core.annotation.KoinExperimentalAPI
 fun ProfileScreen(navController: NavController, innerPadding: PaddingValues) {
     val viewModel = koinViewModel<ProfileViewModel>()
     val uiState by viewModel.uiState.collectAsState()
+    var needsPermissionCheck by remember { mutableStateOf(false) }
 
     val scrollState = rememberScrollState()
     Scaffold(
@@ -106,8 +120,28 @@ fun ProfileScreen(navController: NavController, innerPadding: PaddingValues) {
                 )
                 Switch(
                     checked = uiState.sendNotification,
-                    onCheckedChange = viewModel::onSendNotificationToggle,
-                    colors = GetSwitchColors()
+                    onCheckedChange = { enabled ->
+                        if (enabled) {
+                            needsPermissionCheck = !needsPermissionCheck
+                        } else {
+                            viewModel.onSendNotificationToggle(false)
+                        }
+                    },
+                    colors = getSwitchColors()
+                )
+            }
+
+            if (needsPermissionCheck) {
+                CheckNotificationPermission(
+                    onGranted = {
+                        println("Notification permission granted")
+                        viewModel.onSendNotificationToggle(true)
+                        needsPermissionCheck = false
+                    },
+                    onDenied = {
+                        println("Notification permission denied")
+                        needsPermissionCheck = false
+                    }
                 )
             }
         }
@@ -141,7 +175,7 @@ private fun LabeledOutlinedTextField(
             },
             textStyle = MaterialTheme.typography.bodyMedium,
             singleLine = true,
-            colors = GetTextFieldColors(),
+            colors = getTextFieldColors(),
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(
                 keyboardType = keyboardType
@@ -151,7 +185,75 @@ private fun LabeledOutlinedTextField(
 }
 
 @Composable
-private fun GetTextFieldColors(): TextFieldColors {
+private fun CheckNotificationPermission(
+    onGranted: () -> Unit,
+    onDenied: () -> Unit
+) {
+    var shouldLaunch by remember { mutableStateOf(false) }
+    var launchSetting by remember { mutableStateOf(value = false) }
+    var permissionRationalDialog by remember { mutableStateOf(value = false) }
+    val permissionsManager = createPermissionsManager(object : PermissionCallback {
+        override fun onPermissionStatus(
+            permissionType: PermissionType,
+            status: PermissionStatus
+        ) {
+            when (status) {
+                PermissionStatus.GRANTED -> {
+                    onGranted.invoke()
+                    shouldLaunch = true
+                }
+
+                else -> {
+                    onDenied.invoke()
+                    permissionRationalDialog = true
+                }
+            }
+        }
+    })
+    val hasPermission = permissionsManager.isPermissionGranted(PermissionType.NOTIFICATION)
+
+    LaunchedEffect(hasPermission) {
+        if (hasPermission) {
+            onGranted.invoke()
+            shouldLaunch = true
+        }
+    }
+
+    LaunchedEffect(shouldLaunch) {
+        if (shouldLaunch) {
+            shouldLaunch = false
+        }
+    }
+
+    if (!hasPermission) {
+        permissionsManager.askPermission(PermissionType.NOTIFICATION)
+    }
+
+    if (launchSetting) {
+        permissionsManager.launchSettings()
+        launchSetting = false
+    }
+    if (permissionRationalDialog) {
+        AlertMessageDialog(
+            title = stringResource(Res.string.permission_required_title),
+            message = stringResource(Res.string.gallery_permission_message),
+            positiveButtonText = stringResource(Res.string.settings),
+            negativeButtonText = stringResource(Res.string.cancel),
+            onPositiveClick = {
+                permissionRationalDialog = false
+                launchSetting = true
+
+            },
+            onNegativeClick = {
+                onDenied.invoke()
+                permissionRationalDialog = false
+            }
+        )
+    }
+}
+
+@Composable
+private fun getTextFieldColors(): TextFieldColors {
     val colors = TextFieldDefaults.colors().copy(
         focusedTextColor = MaterialTheme.colorScheme.primary,
         focusedIndicatorColor = MaterialTheme.colorScheme.primary,
@@ -171,7 +273,7 @@ private fun GetTextFieldColors(): TextFieldColors {
 }
 
 @Composable
-private fun GetSwitchColors(): SwitchColors {
+private fun getSwitchColors(): SwitchColors {
     val colors = SwitchDefaults.colors().copy(
         checkedThumbColor = White,
         uncheckedThumbColor = MaterialTheme.colorScheme.tertiary,
