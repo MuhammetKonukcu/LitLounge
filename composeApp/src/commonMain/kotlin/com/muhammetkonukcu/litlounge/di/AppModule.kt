@@ -84,6 +84,8 @@ private fun repoModule(): Module = module {
 
 expect fun databaseModule(): Module
 
+expect fun platformModule(): Module
+
 fun initKoin(config: KoinAppDeclaration? = null) =
     startKoin {
         config?.invoke(this)
@@ -93,6 +95,7 @@ fun initKoin(config: KoinAppDeclaration? = null) =
             repoModule(),
             networkModule(),
             databaseModule(),
+            platformModule(),
             validationModule()
         )
     }
