@@ -3,6 +3,7 @@ package com.muhammetkonukcu.litlounge.utils
 import android.Manifest
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.provider.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -58,6 +59,31 @@ actual class PermissionsManager actual constructor(private val callback: Permiss
                     permission, PermissionStatus.GRANTED
                 )
             }
+
+            PermissionType.NOTIFICATION -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    val notificationPermissionState =
+                        rememberPermissionState(Manifest.permission.POST_NOTIFICATIONS)
+                    LaunchedEffect(notificationPermissionState) {
+                        val permissionResult = notificationPermissionState.status
+                        if (!permissionResult.isGranted) {
+                            if (permissionResult.shouldShowRationale) {
+                                callback.onPermissionStatus(
+                                    permission, PermissionStatus.SHOW_RATIONAL
+                                )
+                            } else {
+                                lifecycleOwner.lifecycleScope.launch {
+                                    notificationPermissionState.launchPermissionRequest()
+                                }
+                            }
+                        } else {
+                            callback.onPermissionStatus(
+                                permission, PermissionStatus.GRANTED
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -75,6 +101,16 @@ actual class PermissionsManager actual constructor(private val callback: Permiss
                 // Granted by default because in Android GetContent API does not require any
                 // runtime permissions, and i am using it to access gallery in my app
                 true
+            }
+
+            PermissionType.NOTIFICATION -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    val notificationPermissionState =
+                        rememberPermissionState(Manifest.permission.POST_NOTIFICATIONS)
+                    notificationPermissionState.status.isGranted
+                } else {
+                    true
+                }
             }
         }
     }

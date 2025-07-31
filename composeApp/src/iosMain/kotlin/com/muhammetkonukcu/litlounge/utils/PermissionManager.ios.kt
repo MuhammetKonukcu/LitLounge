@@ -1,7 +1,11 @@
 package com.muhammetkonukcu.litlounge.utils
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import platform.AVFoundation.AVAuthorizationStatus
 import platform.AVFoundation.AVAuthorizationStatusAuthorized
 import platform.AVFoundation.AVAuthorizationStatusDenied
@@ -18,6 +22,14 @@ import platform.Photos.PHAuthorizationStatusNotDetermined
 import platform.Photos.PHPhotoLibrary
 import platform.UIKit.UIApplication
 import platform.UIKit.UIApplicationOpenSettingsURLString
+import platform.UserNotifications.UNAuthorizationOptionAlert
+import platform.UserNotifications.UNAuthorizationOptionBadge
+import platform.UserNotifications.UNAuthorizationOptionSound
+import platform.UserNotifications.UNAuthorizationStatusAuthorized
+import platform.UserNotifications.UNAuthorizationStatusDenied
+import platform.UserNotifications.UNAuthorizationStatusNotDetermined
+import platform.UserNotifications.UNAuthorizationStatusProvisional
+import platform.UserNotifications.UNUserNotificationCenter
 
 @Composable
 actual fun createPermissionsManager(callback: PermissionCallback): PermissionsManager {
@@ -39,6 +51,10 @@ actual class PermissionsManager actual constructor(private val callback: Permiss
                 val status: PHAuthorizationStatus =
                     remember { PHPhotoLibrary.authorizationStatus() }
                 askGalleryPermission(status, permission, callback)
+            }
+
+            PermissionType.NOTIFICATION -> {
+                askNotificationPermission(permission, callback)
             }
 
         }
@@ -94,6 +110,47 @@ actual class PermissionsManager actual constructor(private val callback: Permiss
         }
     }
 
+    private fun askNotificationPermission(
+        permission: PermissionType,
+        callback: PermissionCallback
+    ) {
+        val center = UNUserNotificationCenter.currentNotificationCenter()
+
+        center.getNotificationSettingsWithCompletionHandler { settings ->
+            when (settings?.authorizationStatus) {
+                UNAuthorizationStatusAuthorized -> {
+                    callback.onPermissionStatus(permission, PermissionStatus.GRANTED)
+                }
+
+                UNAuthorizationStatusNotDetermined -> {
+                    val options = UNAuthorizationOptionAlert or
+                            UNAuthorizationOptionSound or
+                            UNAuthorizationOptionBadge
+
+                    center.requestAuthorizationWithOptions(options) { granted, error ->
+                        if (granted) {
+                            callback.onPermissionStatus(permission, PermissionStatus.GRANTED)
+                        } else {
+                            callback.onPermissionStatus(permission, PermissionStatus.DENIED)
+                        }
+                    }
+                }
+
+                UNAuthorizationStatusDenied -> {
+                    callback.onPermissionStatus(permission, PermissionStatus.DENIED)
+                }
+
+                UNAuthorizationStatusProvisional -> {
+                    callback.onPermissionStatus(permission, PermissionStatus.GRANTED)
+                }
+
+                else -> {
+                    callback.onPermissionStatus(permission, PermissionStatus.DENIED)
+                }
+            }
+        }
+    }
+
     @Composable
     override fun isPermissionGranted(permission: PermissionType): Boolean {
         return when (permission) {
@@ -107,6 +164,21 @@ actual class PermissionsManager actual constructor(private val callback: Permiss
                 val status: PHAuthorizationStatus =
                     remember { PHPhotoLibrary.authorizationStatus() }
                 status == PHAuthorizationStatusAuthorized
+            }
+
+            PermissionType.NOTIFICATION -> {
+                var isGranted by remember { mutableStateOf(false) }
+
+                LaunchedEffect(Unit) {
+                    val center = UNUserNotificationCenter.currentNotificationCenter()
+                    center.getNotificationSettingsWithCompletionHandler { settings ->
+                        isGranted =
+                            settings?.authorizationStatus == UNAuthorizationStatusAuthorized ||
+                                    settings?.authorizationStatus == UNAuthorizationStatusProvisional
+                    }
+                }
+
+                isGranted
             }
         }
     }
