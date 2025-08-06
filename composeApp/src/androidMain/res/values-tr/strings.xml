@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">LitLounge</string>
+    <string name="notification_channel_name">Günlük Okuma Hatırlatıcısı</string>
+    <string name="notification_title_1">📖 Bugün Ne Okudun?</string>
+    <string name="notification_text_1">Hedefine yaklaştın mı, bir sayfa daha eklesek nasıl olur?</string>
+    <string name="notification_title_2">Kitap Molası Zamanı!</string>
+    <string name="notification_text_2">Günlük okuma hedefin seni bekliyor. Birkaç satır okumaya ne dersin?</string>
+    <string name="notification_title_3">🕒 Okuma Vakti!</string>
+    <string name="notification_text_3">Bugünkü sayfa hedefine ulaşmak için küçük bir ara verip okumaya başlayabilirsin.</string>
+</resources>

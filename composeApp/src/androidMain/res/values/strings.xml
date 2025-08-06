@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">LitLounge</string>
+    <string name="notification_channel_name">Daily Reading Reminder</string>
+    <string name="notification_title_1">📖 What Did You Read Today?</string>
+    <string name="notification_text_1">How close are you to your goal? Ready to add another page?</string>
+    <string name="notification_title_2">Time for a Book Break!</string>
+    <string name="notification_text_2">Your daily reading goal is waiting. How about a few pages right now?</string>
+    <string name="notification_title_3">🕒 Reading Time!</string>
+    <string name="notification_text_3">Don’t forget your page count—ready for a quick reading session?</string>
 </resources>
