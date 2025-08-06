@@ -14,8 +14,8 @@ class LitLoungeApp : Application() {
 
         AlarmScheduler.scheduleDailyAlarm(
             context = this,
-            hour = 13,
-            minute = 28
+            hour = 20,
+            minute = 0
         )
     }
 }
