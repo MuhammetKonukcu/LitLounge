@@ -33,27 +33,25 @@ actual class NotificationManager(
         }
     }
 
-    private val areNotificationEnabled get() = NotificationManagerCompat
-        .from(context)
-        .areNotificationsEnabled()
+    private val areNotificationEnabled
+        get() = NotificationManagerCompat
+            .from(context)
+            .areNotificationsEnabled()
 
     private fun createNotificationChannel() {
+        val channelName = context.getString(R.string.notification_channel_name)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel(
                 CHANNEL_ID,
-                CHANNEL_NAME,
+                channelName,
                 NotificationManager.IMPORTANCE_DEFAULT
-            ).apply {
-                description = CHANNEL_DESCRIPTION
-            }.also { notificationManager.createNotificationChannel(it) }
+            ).also { notificationManager.createNotificationChannel(it) }
         }
     }
 
 
     companion object {
-        private const val CHANNEL_DESCRIPTION = "Daily goals"
-        private const val CHANNEL_NAME = "Default Channel"
-        private const val CHANNEL_ID = "Notification"
+        private const val CHANNEL_ID = "DailyGoals"
         private const val NOTIFICATION_ID = 1
     }
 }
