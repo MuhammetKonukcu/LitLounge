@@ -23,5 +23,17 @@
         <key>NSAllowsArbitraryLoads</key>
         <true/>
     </dict>
+
+    <key>BGTaskSchedulerPermittedIdentifiers</key>
+    <array>
+        <string>com.muhammetkonukcu.litlounge</string>
+    </array>
+
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>fetch</string>
+        <string>remote-notification</string>
+    </array>
+
 </dict>
 </plist>
